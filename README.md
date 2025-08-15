@@ -79,6 +79,23 @@ conda activate AI_RCP_env
 
 This will install all the necessary dependencies, including PyTorch, DGL, XGBoost, and RDKit.
 
+## Datasets
+
+The `data/` directory contains curated datasets for Buchwald-Hartwig (bh) and Suzuki-Miyaura (sm) cross-coupling reactions. The data is provided in CSV format and follows the Simple User-Friendly Reaction Format (SURF).
+
+The following datasets are available:
+
+*   **`bh_data_clean_all_whitelisted.csv`**: A comprehensive dataset of **10,138** Buchwald-Hartwig reactions, including both positive and negative outcomes.
+*   **`bh_data_clean_positive_whitelisted.csv`**: A subset of the Buchwald-Hartwig dataset, containing **3,441** reactions with positive outcomes.
+*   **`sm_data_clean_all_whitelisted.csv`**: A comprehensive dataset of **3,426** Suzuki-Miyaura reactions, including both positive and negative outcomes.
+*   **`sm_data_clean_positive_whitelisted.csv`**: A subset of the Suzuki-Miyaura dataset, containing **1,878** reactions with positive outcomes.
+
+Each dataset includes detailed information for every reaction, such as:
+*   Reaction identifiers (`rxn_id`, `rxn_type`, `rxn_date`)
+*   Reaction conditions (`temperature_deg_c`, `time_h`)
+*   Starting materials, reagents, catalysts, and solvents, with their names, SMILES strings, and stoichiometric equivalents
+*   Product information, including SMILES and yield (`product_1_area%`)
+
 ## Usage
 
 ### Data Preparation
