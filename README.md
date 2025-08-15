@@ -83,7 +83,15 @@ This will install all the necessary dependencies, including PyTorch, DGL, XGBoos
 
 ### Data Preparation
 
-Place your raw and processed data in the `data/` directory. The project expects the data to be in a specific format, so you may need to adapt your data or the data loading scripts in `utils/`.
+The project expects reaction data to be in the Simple User-Friendly Reaction Format (SURF). For more information on the SURF format, please refer to the [SURF GitHub repository](https://github.com/alexarnimueller/surf).
+
+Before training the models, you need to process the input data from a SURF-formatted CSV file. This is done using the `SURF2VAEinput.py` script, which prepares the data for the VAE model and exports a reagent dataframe.
+
+```bash
+python SURF2VAEinput.py --infile data/bh_data_clean_all.csv --export_reagent_df
+```
+
+This script will process `data/bh_data_clean_all.csv` and generate the necessary input files for the next steps in the pipeline.
 
 ### Training the Generative Model
 
@@ -112,6 +120,33 @@ python train_xgboost_yield.py --config_path configs/xgboost_config.yaml
 The project supports hyperparameter sweeps using Weights & Biases. You can define your sweep configuration in `configs/sweep_config.yaml` and then run the sweep using the `run_sweep.py` script.
 
 The `scripts/` directory also contains several helper scripts for managing sweeps on an HPC cluster.
+
+#### Submitting Parallel Jobs
+
+To submit multiple sweep agents in parallel on an HPC cluster, you can use the `submit_sweep_wrapper.sh` script. This script will create a sweep and submit a specified number of jobs to the cluster.
+
+```bash
+scripts/submit_sweep_wrapper.sh --model my_model --reaction bh --dataset all --count 3 --agents 10
+```
+
+*   `--model`: The name of the model to use for the sweep.
+*   `--reaction`: The reaction type (`bh` for Buchwald-Hartwig or `sm` for Suzuki-Miyaura).
+*   `--dataset`: The dataset to use (`all` or `positive`).
+*   `--count`: The number of runs for each agent.
+*   `--agents`: The number of parallel agents to launch.
+
+#### Adding Agents to an Existing Sweep
+
+If you have an existing sweep and want to add more agents to it, you can use the `add_agents_to_sweep.sh` script:
+
+```bash
+scripts/add_agents_to_sweep.sh --sweep-id xyz789ghi --model my_model --agents 2 --count 3
+```
+
+*   `--sweep-id`: The ID of the `wandb` sweep to add agents to.
+*   `--model`: The name of the model to use for the sweep.
+*   `--agents`: The number of additional agents to launch.
+*   `--count`: The number of runs for each new agent.
 
 ### Inference
 
