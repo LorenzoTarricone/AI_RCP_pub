@@ -1,0 +1,27 @@
+,reagent_type,reagent,count,reagent_type_numbered
+0,S,THF,402.0,S1
+1,S,tAmOH,351.0,S2
+2,S,Dioxane,223.0,S3
+3,S,EtOH,170.0,S4
+4,S,Brij 35,142.0,S5
+5,S,PhMe,124.0,S6
+6,S,iPrOAc,113.0,S7
+7,S,MeTHF,101.0,S8
+8,S,MeCN,75.0,S9
+9,S,TBME,74.0,S10
+10,W,True,,W1
+11,A,Potassium 2-ethylhexanoate,294.0,A1
+12,C,Amphos,284.0,C1
+13,C,SPhos,252.0,C2
+14,C,XPhos,201.0,C3
+15,C,CataCXiumA,201.0,C4
+16,C,dtbpf,193.0,C5
+17,C,DiMeIHept Cl,165.0,C6
+18,C,P(tBu)3,154.0,C7
+19,C,dppf,150.0,C8
+20,C,XantPhos,100.0,C9
+21,C,meCgPPh,50.0,C10
+22,B,K3PO4,691.0,B1
+23,B,Na2CO3,414.0,B2
+24,B,Cs2CO3,403.0,B3
+25,B,K2CO3,230.0,B4

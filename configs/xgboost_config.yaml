@@ -1,0 +1,50 @@
+# XGBoost Training Configuration
+
+# General
+wandb_project: "xgboost-yield-regression"
+no_wandb: True
+verbose: True
+random_state: 42
+device: "cuda"
+n_test_runs: 5
+
+# Data
+rxn_type: "bh"
+data_type: "all"
+remove_duplicates: True
+condition_cache_path: null # "condition_embeddings_cache/bh_treshold_all_all_condition_embeddings.pkl"
+reagents_dir: "reagents_dfs"
+output_dir: "outputs_xgboost" # If null, a timestamped directory will be created
+split_indices_path: "data/split_indices.pkl" # If null, a timestamped directory will be created
+split_strategy: "by_reaction" # "by_reaction" or "point_wise"
+representation: "chemberta" # "chemberta" or "morgan"
+condition_representation: "chemberta" #options "multihot", "chemberta", "morgan"
+
+
+# Model
+quantiles: [0.1, 0.5, 0.9]
+n_ensemble: 5
+scale_features: False
+use_sample_weighting: True
+transform_target: True
+
+# Default model parameters for a single run.
+# These are overridden by the sweep configuration when running a wandb sweep.
+model_params:
+  n_estimators: 1500
+  max_depth: 15
+  learning_rate: 0.02
+  subsample: 0.7
+  colsample_bytree: 0.9
+  gamma: 0.1
+  alpha: 0.1
+  max_bin: 128
+
+# Configuration for a local hyperparameter search (not for wandb sweeps)
+# Set hyperparameter_search to True to run this.
+hyperparameter_search: True
+hyperparameter_search_type: "halving"
+cv_folds: 5
+use_early_stopping: True
+# The param_grid for local search is now defined directly in the script
+# to keep this config file clean for single runs. 

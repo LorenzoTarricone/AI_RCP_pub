@@ -1,0 +1,13 @@
+{"time":"2025-08-11T13:48:56.903281596+02:00","level":"INFO","msg":"stream: starting","core version":"0.21.0"}
+{"time":"2025-08-11T13:48:57.20631159+02:00","level":"INFO","msg":"stream: created new stream","id":"f5a0fk9u"}
+{"time":"2025-08-11T13:48:57.206375218+02:00","level":"INFO","msg":"stream: started","id":"f5a0fk9u"}
+{"time":"2025-08-11T13:48:57.207531521+02:00","level":"INFO","msg":"handler: started","stream_id":"f5a0fk9u"}
+{"time":"2025-08-11T13:48:57.207595971+02:00","level":"INFO","msg":"writer: Do: started","stream_id":"f5a0fk9u"}
+{"time":"2025-08-11T13:48:57.207935884+02:00","level":"INFO","msg":"sender: started","stream_id":"f5a0fk9u"}
+{"time":"2025-08-11T16:31:58.190831497+02:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading output.log","runtime_seconds":0.809329568,"progress":"1.4MB/1.7MB"},{"desc":"uploading trained_models/model_seq_emb_bh_all_f5a0fk9u_fold_3.pt","runtime_seconds":0.432979473,"progress":"304.0KB/79.8MB"},{"desc":"uploading trained_models/model_seq_emb_bh_all_f5a0fk9u_fold_4.pt","runtime_seconds":0.432972892,"progress":"336.0KB/79.8MB"},{"desc":"uploading trained_models/model_seq_emb_bh_all_f5a0fk9u_fold_0.pt","runtime_seconds":0.432970778,"progress":"208.0KB/79.8MB"},{"desc":"uploading trained_models/model_seq_emb_bh_all_f5a0fk9u_fold_1.pt","runtime_seconds":0.432969355,"progress":"272.0KB/79.8MB"},{"desc":"uploading trained_models/model_seq_emb_bh_all_f5a0fk9u_fold_2.pt","runtime_seconds":0.432967932,"progress":"320.0KB/79.8MB"}],"total_operations":6}}
+{"time":"2025-08-11T16:32:01.663460597+02:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-11T16:32:01.928702519+02:00","level":"INFO","msg":"stream: closing","id":"f5a0fk9u"}
+{"time":"2025-08-11T16:32:01.928743765+02:00","level":"INFO","msg":"handler: closed","stream_id":"f5a0fk9u"}
+{"time":"2025-08-11T16:32:01.928756409+02:00","level":"INFO","msg":"writer: Close: closed","stream_id":"f5a0fk9u"}
+{"time":"2025-08-11T16:32:01.929157754+02:00","level":"INFO","msg":"sender: closed","stream_id":"f5a0fk9u"}
+{"time":"2025-08-11T16:32:01.929277647+02:00","level":"INFO","msg":"stream: closed","id":"f5a0fk9u"}

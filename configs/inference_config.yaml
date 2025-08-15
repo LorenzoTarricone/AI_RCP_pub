@@ -1,0 +1,69 @@
+# Inference Configuration
+mode: "inference"
+# Model and data settings
+model_type: "seq_emb"  # Options: baseline, rxnfp, seq, emb, seq_emb
+random_seed: 42
+rtype: "sm"  # Options: bh (Buchwald-Hartwig) or sm (Suzuki-Miyaura)
+sample_size: 1000  # Number of positive and negative condition samples to generate
+show_debug_logs: False
+
+# #Smiles strings for a reaction (Buchwald-Hartwig)
+# starting_material_1: "Brc1ccc(cc1)-c1ccccc1"
+# starting_material_2: "C[C@@H]1CCC[C@H](C)N1"
+# product: "C[C@@H]1CCC[C@H](C)N1c1ccc(cc1)-c1ccccc1"
+
+# # SMILES strings for a reaction (Suzuki–Miyaura)
+starting_material_1: "FC(F)[C@@H]1COC(=O)N1c2cn3CCOc4cc(Br)ccc4c3n2"
+starting_material_2: "COc1cc(nn2cc(nc12)C)[B]1OC(C)(C)C(C)(C)O1"
+product: "COc1cc(nn2cc(nc12)C)-c1ccc-2c(c1)OCCn1cc(nc12)N1[C@@H](COC1=O)C(F)F"
+
+#Model path bh (explicit path used for inference)
+model_path_bh: "/home/tarricol/AI_RCP/best_models/best_model_seq_emb_bh_all_20250806-120957.pt"
+# # Model path sm (explicit path used for inference)
+model_path_sm: "/home/tarricol/AI_RCP/best_models/best_model_seq_emb_sm_all_20250806-121025.pt"
+
+iterid: 0  # Model iteration ID
+
+# Inference parameters
+temperature: 1.0  # Temperature for sampling (higher = more diverse, lower = more focused)
+batch_size: 1  # Batch size for inference (usually 1 for single reaction)
+
+# Device
+device: "cuda"  # Options: cuda, cpu
+
+# Verbose output
+verbose: True
+save_results: False
+report_results_sampling: False
+
+# Data loading settings (should match training settings)
+load_graphs: False
+addh: False
+atom_emb: True
+morfeus_init: True
+ASE_opt: True
+Geometry_opt_type: "Auto3D"
+max_num_conformers: 3
+atom_emb_list: ["xtb", "sasa"]
+emb_to_use: ['cb', 'sec']
+verbose_sec: False
+
+
+# Threshold for condition selection (used by some models)
+treshold: 0.4 
+
+# XGBoost scoring and pruning
+#BH example
+xgb_model_path_bh: "/home/tarricol/AI_RCP/outputs_xgboost/models/best_model_all_bh_chemberta_point_wise.pkl"
+xgb_config_path_bh: "outputs_xgboost/reports/best_config_all_bh_chemberta_point_wise.json"
+
+# #SM example
+xgb_model_path_sm: "/home/tarricol/AI_RCP/outputs_xgboost/models/best_model_all_sm_chemberta_point_wise.pkl"
+xgb_config_path_sm: "outputs_xgboost/reports/best_config_all_sm_chemberta_point_wise.json"
+
+# Pruning controls for sampled conditions
+epsilon: 0.05                 # yield threshold (e.g., 5%)
+alpha: 0.0                    # trust level in scoring model (0..1)
+
+# Plate construction control
+negative_penalty_weight: 1.0

@@ -1,0 +1,61 @@
+#General
+wandb: True
+wandb_save_model: True  # Whether to save model weights to WandB
+verbose: True
+random_seed: 42
+device: "cuda"
+iterid: 0 
+mode: "trn"
+
+#Preprocessing
+model_type: "seq_emb"
+filepath: "data/sm_treshold_all_all_processed.npz"
+frac_tst: 0.2
+n_folds: 5
+addh: False #Consider or not light atom features when generating the graph
+save_graphs: False
+load_graphs: True
+graph_path: null
+
+#Data Splitting & Stratification
+stratification_method: "iterative" #Possibilities: random, iterative, condition_count, frequent_conditions
+stratify_top_k: 5 #Number of most frequent conditions to consider for frequent_conditions method
+split_indices_path: "data/split_indices.pkl" # Path to save/load split indices
+
+#SEC Embeddings
+atom_emb: True #Wether or not to add atom level embeddings
+morfeus_init: True #Flag to initialize morfeus only once
+ASE_opt: True #Wether using ASE to do pruning and energy minimization
+Geometry_opt_type: "Auto3D" #Possibilities: Auto3D, Auto3D_OG, ASE. The first one is batched, the second one is batched and uses the original Auto3D code to optimize the conformers, the third one is unbatched. Auto3D_OG is not working yet.
+max_num_conformers: 3 #Maximum number of conformers to keep after pruning
+emb_split: null 
+atom_emb_list:  ["xtb", "sasa"] #These will also define the molecule embeddings to use, possible values: xtb, sasa, morfeus
+emb_to_use: ["cb", "sec"] #These will also define the molecule embeddings to use, possible values: cb, sec
+save_embeddings: True
+verbose_sec: False
+
+#Dataset
+batch_size: 128
+shuffle: False
+
+#Evaluation
+T_values: [1, 10, 50, 100, 500, 1000]  # T values for evaluation metrics calculation
+n_sampling_val: 50  # Number of samples during validation (training)
+n_sampling_test: 1000  # Number of samples during final evaluation
+temperature: 1.5  # Temperature parameter for scaling logits
+compute_random_baselines: True
+
+#Training
+epochs: 200 #old 200
+lr: 1.0e-3
+weight_decay: 1.0e-6
+weight_bce: 2.8
+treshold: 0.466
+class_weights: False
+kl_annealing_epochs: 50
+
+#Scheduled Sampling
+ss_mode: "on"
+ss_epsilon_start: 1.0
+ss_epsilon_end: 0.1
+ss_decay_epochs: 150

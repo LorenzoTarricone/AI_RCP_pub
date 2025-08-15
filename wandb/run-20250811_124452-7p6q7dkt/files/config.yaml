@@ -1,0 +1,164 @@
+_wandb:
+    value:
+        cli_version: 0.21.0
+        e:
+            d8kb9z35nrr38vbkdfmrtnj21xf7bov7:
+                args:
+                    - --config_file
+                    - configs/gen_config.yaml
+                codePath: train_gen_model.py
+                codePathLocal: train_gen_model.py
+                cpu_count: 96
+                cpu_count_logical: 96
+                cudaVersion: "12.6"
+                disk:
+                    /:
+                        total: "429287014400"
+                        used: "35669405696"
+                email: tarricone.lory01.lt@gmail.com
+                executable: /home/tarricol/scratch/conda/envs/AI_RCP_env_3_backup_3/bin/python
+                gpu: NVIDIA L40S
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 18176
+                      memoryTotal: "48305799168"
+                      name: NVIDIA L40S
+                      uuid: GPU-16169e5b-6c9e-f544-3dbd-25185d8da031
+                host: rkans022is09
+                memory:
+                    total: "1080835174400"
+                os: Linux-4.18.0-553.8.1.el8_10.x86_64-x86_64-with-glibc2.28
+                program: /home/tarricol/AI_RCP_pub/train_gen_model.py
+                python: CPython 3.12.3
+                root: /home/tarricol/AI_RCP_pub
+                startedAt: "2025-08-11T10:44:52.773615Z"
+                writerId: d8kb9z35nrr38vbkdfmrtnj21xf7bov7
+        m: []
+        python_version: 3.12.3
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 49
+                - 53
+                - 76
+            "2":
+                - 1
+                - 5
+                - 11
+                - 49
+                - 53
+                - 76
+            "3":
+                - 16
+            "4": 3.12.3
+            "5": 0.21.0
+            "6": 4.53.1
+            "12": 0.21.0
+            "13": linux-x86_64
+ASE_opt:
+    value: true
+Geometry_opt_type:
+    value: Auto3D
+T_values:
+    value:
+        - 1
+        - 10
+        - 50
+        - 100
+        - 500
+        - 1000
+addh:
+    value: false
+atom_emb:
+    value: true
+atom_emb_list:
+    value:
+        - xtb
+        - sasa
+batch_size:
+    value: 128
+class_weights:
+    value: true
+compute_random_baselines:
+    value: true
+config_file:
+    value: configs/gen_config.yaml
+device:
+    value: cuda
+emb_split:
+    value: null
+emb_to_use:
+    value:
+        - cb
+        - sec
+epochs:
+    value: 200
+filepath:
+    value: data/bh_treshold_all_all_processed.npz
+frac_tst:
+    value: 0.2
+graph_path:
+    value: null
+iterid:
+    value: 0
+kl_annealing_epochs:
+    value: 100
+load_graphs:
+    value: false
+lr:
+    value: 0.001
+max_num_conformers:
+    value: 3
+mode:
+    value: trn
+model_type:
+    value: emb
+morfeus_init:
+    value: true
+n_folds:
+    value: 5
+n_sampling_test:
+    value: 1000
+n_sampling_val:
+    value: 50
+random_seed:
+    value: 42
+save_embeddings:
+    value: true
+save_graphs:
+    value: true
+shuffle:
+    value: false
+split_indices_path:
+    value: data/split_indices.pkl
+ss_decay_epochs:
+    value: 100
+ss_epsilon_end:
+    value: 0.1
+ss_epsilon_start:
+    value: 1
+ss_mode:
+    value: "on"
+stratification_method:
+    value: iterative
+stratify_top_k:
+    value: 5
+temperature:
+    value: 1
+treshold:
+    value: 0.4
+verbose:
+    value: true
+verbose_sec:
+    value: false
+wandb:
+    value: true
+wandb_save_model:
+    value: true
+weight_bce:
+    value: 2
+weight_decay:
+    value: 1e-10

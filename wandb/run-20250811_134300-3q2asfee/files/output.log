@@ -1,0 +1,194 @@
+2025-08-11 13:43:01 - INFO - INFO: Weights & Biases INITIALIZED. Run: devoted-wildflower-909
+2025-08-11 13:43:01 - INFO -
+--- Effective Configuration for this Run ---
+2025-08-11 13:43:01 - INFO - wandb: True
+2025-08-11 13:43:01 - INFO - wandb_save_model: True
+2025-08-11 13:43:01 - INFO - verbose: True
+2025-08-11 13:43:01 - INFO - random_seed: 42
+2025-08-11 13:43:01 - INFO - device: cuda
+2025-08-11 13:43:01 - INFO - iterid: 0
+2025-08-11 13:43:01 - INFO - mode: trn
+2025-08-11 13:43:01 - INFO - model_type: emb
+2025-08-11 13:43:01 - INFO - filepath: data/bh_treshold_all_all_processed.npz
+2025-08-11 13:43:01 - INFO - frac_tst: 0.2
+2025-08-11 13:43:01 - INFO - n_folds: 5
+2025-08-11 13:43:01 - INFO - addh: False
+2025-08-11 13:43:01 - INFO - save_graphs: False
+2025-08-11 13:43:01 - INFO - load_graphs: True
+2025-08-11 13:43:01 - INFO - graph_path: None
+2025-08-11 13:43:01 - INFO - stratification_method: iterative
+2025-08-11 13:43:01 - INFO - stratify_top_k: 5
+2025-08-11 13:43:01 - INFO - split_indices_path: data/split_indices.pkl
+2025-08-11 13:43:01 - INFO - atom_emb: True
+2025-08-11 13:43:01 - INFO - morfeus_init: True
+2025-08-11 13:43:01 - INFO - ASE_opt: True
+2025-08-11 13:43:01 - INFO - Geometry_opt_type: Auto3D
+2025-08-11 13:43:01 - INFO - max_num_conformers: 3
+2025-08-11 13:43:01 - INFO - emb_split: None
+2025-08-11 13:43:01 - INFO - atom_emb_list: ['xtb', 'sasa']
+2025-08-11 13:43:01 - INFO - emb_to_use: ['cb', 'sec']
+2025-08-11 13:43:01 - INFO - save_embeddings: True
+2025-08-11 13:43:01 - INFO - verbose_sec: False
+2025-08-11 13:43:01 - INFO - batch_size: 128
+2025-08-11 13:43:01 - INFO - shuffle: False
+2025-08-11 13:43:01 - INFO - T_values: [1, 10, 50, 100, 500, 1000]
+2025-08-11 13:43:01 - INFO - n_sampling_val: 50
+2025-08-11 13:43:01 - INFO - n_sampling_test: 1000
+2025-08-11 13:43:01 - INFO - temperature: 1
+2025-08-11 13:43:01 - INFO - compute_random_baselines: True
+2025-08-11 13:43:01 - INFO - epochs: 200
+2025-08-11 13:43:01 - INFO - lr: 0.001
+2025-08-11 13:43:01 - INFO - weight_decay: 1e-10
+2025-08-11 13:43:01 - INFO - weight_bce: 2
+2025-08-11 13:43:01 - INFO - treshold: 0.4
+2025-08-11 13:43:01 - INFO - class_weights: True
+2025-08-11 13:43:01 - INFO - kl_annealing_epochs: 100
+2025-08-11 13:43:01 - INFO - ss_mode: on
+2025-08-11 13:43:01 - INFO - ss_epsilon_start: 1
+2025-08-11 13:43:01 - INFO - ss_epsilon_end: 0.1
+2025-08-11 13:43:01 - INFO - ss_decay_epochs: 100
+2025-08-11 13:43:01 - INFO - config_file: configs/gen_config.yaml
+2025-08-11 13:43:01 - INFO - W&B Run Name: devoted-wildflower-909 (ID: 3q2asfee)
+2025-08-11 13:43:01 - INFO - -------------------------------------------
+
+2025-08-11 13:43:01 - INFO - INFO: Using random seed: 42
+2025-08-11 13:43:01 - INFO - INFO: Using device: cuda
+2025-08-11 13:43:01 - INFO - GPU name: NVIDIA L40S
+2025-08-11 13:43:01 - INFO - GPU memory allocated: 0.00 GB
+2025-08-11 13:43:01 - INFO - --- Loading graphs structures from dataset ---
+Normalizing sasa values
+2025-08-11 13:43:01 - INFO - INFO: Successfully loaded data
+2025-08-11 13:43:01 - INFO - Using stratification method: iterative
+Reaction labels:  [[([14, 33, 43, 54], 1, 0.7449543993032143), ([3, 33, 43, 54], 0, 0.0), ([2, 33, 43, 54], 0, 0.0), ([9, 33, 43, 54], 1, 0.7415866380417799), ([21, 33, 43, 54], 0, 0.0), ([1, 33, 43, 54], 1, 0.7951367192923365), ([16, 33, 43, 54], 1, 0.4447078112115838), ([17, 33, 43, 54], 0, 0.0), ([5, 33, 43, 54], 1, 0.6499294088589507), ([6, 33, 43, 54], 1, 0.8128244493379554), ([0, 33, 43, 54], 0, 0.0), ([18, 33, 43, 54], 0, 0.0), ([14, 33, 46, 54], 1, 0.8784680811568709), ([3, 33, 46, 54], 0, 0.0), ([2, 33, 46, 54], 0, 0.0), ([9, 33, 46, 54], 1, 0.7784136976708598), ([21, 33, 46, 54], 0, 0.0), ([1, 33, 46, 54], 1, 0.7130303294922333), ([16, 33, 46, 54], 1, 0.4378635061681803), ([17, 33, 46, 54], 0, 0.0), ([5, 33, 46, 54], 1, 0.6220729795133328), ([6, 33, 46, 54], 1, 0.8839887715584864), ([0, 33, 46, 54], 0, 0.0), ([18, 33, 46, 54], 0, 0.0), ([14, 38, 43, 54], 0, 0.0), ([3, 38, 43, 54], 0, 0.0), ([2, 38, 43, 54], 0, 0.0), ([9, 38, 43, 54], 0, 0.0383759967501908), ([21, 38, 43, 54], 0, 0.0), ([1, 38, 43, 54], 0, 0.0), ([16, 38, 43, 54], 0, 0.0), ([17, 38, 43, 54], 0, 0.0), ([5, 38, 43, 54], 0, 0.0), ([6, 38, 43, 54], 0, 0.0), ([0, 38, 43, 54], 0, 0.0), ([18, 38, 43, 54], 0, 0.0107608233560043), ([14, 38, 42, 54], 0, 0.0), ([3, 38, 42, 54], 0, 0.0), ([2, 38, 42, 54], 0, 0.0), ([9, 38, 42, 54], 0, 0.039429609402182), ([21, 38, 42, 54], 0, 0.0), ([1, 38, 42, 54], 0, 0.0), ([16, 38, 42, 54], 0, 0.0), ([17, 38, 42, 54], 0, 0.0), ([5, 38, 42, 54], 0, 0.0), ([6, 38, 42, 54], 0, 0.0), ([0, 38, 42, 54], 0, 0.0), ([18, 38, 42, 54], 0, 0.0), ([14, 34, 45], 0, 0.0), ([3, 34, 45], 0, 0.0), ([2, 34, 45], 0, 0.0), ([9, 34, 45], 0, 0.0156831954902024), ([21, 34, 45], 0, 0.0), ([1, 34, 45], 0, 0.0), ([16, 34, 45], 0, 0.0), ([17, 34, 45], 0, 0.0), ([5, 34, 45], 0, 0.0), ([6, 34, 45], 0, 0.0), ([0, 34, 45], 0, 0.0), ([18, 34, 45], 0, 0.0), ([14, 34, 46], 0, 0.0), ([3, 34, 46], 0, 0.0), ([2, 34, 46], 0, 0.0), ([9, 34, 46], 0, 0.0348924842853292), ([21, 34, 46], 0, 0.0), ([1, 34, 46], 0, 0.0), ([16, 34, 46], 0, 0.0), ([17, 34, 46], 0, 0.0), ([5, 34, 46], 0, 0.0), ([6, 34, 46], 0, 0.0), ([0, 34, 46], 0, 0.0), ([18, 34, 46], 0, 0.0), ([14, 28, 43], 1, 0.7399494290736808), ([3, 28, 43], 0, 0.0), ([2, 28, 43], 0, 0.0), ([9, 28, 43], 1, 0.7546035621571415), ([21, 28, 43], 0, 0.0), ([1, 28, 43], 1, 0.7381966063404011), ([16, 28, 43], 1, 0.9135617399814672), ([17, 28, 43], 1, 0.7235237217957214), ([5, 28, 43], 1, 0.8993690013420881), ([6, 28, 43], 1, 0.8960605588106714), ([0, 28, 43], 1, 0.8096176054826436), ([18, 28, 43], 1, 0.8747740207154665), ([14, 28, 42], 1, 0.3486151308991966), ([3, 28, 42], 0, 0.0), ([2, 28, 42], 0, 0.0), ([9, 28, 42], 1, 0.2117287460968805), ([21, 28, 42], 0, 0.0), ([1, 28, 42], 1, 0.4777508439058323), ([16, 28, 42], 1, 0.6301144537219455), ([17, 28, 42], 1, 0.8273239967909576), ([5, 28, 42], 1, 0.6005346497863205), ([6, 28, 42], 1, 0.5545600301888322), ([0, 28, 42], 1, 0.6223283125974389), ([18, 28, 42], 1, 0.6893039221102462), ([14, 33, 43, 54], 1, 0.8017381997378169), ([3, 33, 43, 54], 1, 0.1379556266844135), ([2, 33, 43, 54], 1, 0.7773887277971506), ([9, 33, 43, 54], 1, 0.9322766563740073), ([21, 33, 43, 54], 0, 0.0154892806773011), ([1, 33, 43, 54], 1, 0.7350461524805345), ([16, 33, 43, 54], 1, 0.7588002626187784), ([17, 33, 43, 54], 0, 0.0), ([5, 33, 43, 54], 1, 0.930077171550892), ([6, 33, 43, 54], 1, 0.7655830569204368), ([0, 33, 43, 54], 0, 0.0), ([18, 33, 43, 54], 1, 0.8141605171539413), ([14, 33, 46, 54], 1, 0.870359306917906), ([3, 33, 46, 54], 1, 0.22164415547965), ([2, 33, 46, 54], 1, 0.6661285106501126), ([9, 33, 46, 54], 1, 0.8183816106738958), ([21, 33, 46, 54], 1, 0.0597232731064658), ([1, 33, 46, 54], 1, 0.7286509417209601), ([16, 33, 46, 54], 1, 0.8643809338084733), ([17, 33, 46, 54], 1, 0.0818732295782234), ([5, 33, 46, 54], 1, 0.993008089958664), ([6, 33, 46, 54], 1, 0.848541216106827), ([0, 33, 46, 54], 1, 0.2697125435539211), ([18, 33, 46, 54], 1, 0.6956654924109106), ([14, 38, 43, 54], 1, 0.101307169086447), ([3, 38, 43, 54], 0, 0.0), ([2, 38, 43, 54], 0, 0.0043743467786233), ([9, 38, 43, 54], 0
+2025-08-11 13:43:01 - INFO - Multi-label matrix shape: (32, 57)
+2025-08-11 13:43:01 - INFO - Label density: 0.271
+2025-08-11 13:43:01 - INFO - Test set size: 6 (target: 7)
+2025-08-11 13:43:01 - INFO - Saved split indices to data/split_indices_bh_all.pkl
+Reaction labels:  [[([14, 33, 43, 54], 1, 0.7449543993032143), ([3, 33, 43, 54], 0, 0.0), ([2, 33, 43, 54], 0, 0.0), ([9, 33, 43, 54], 1, 0.7415866380417799), ([21, 33, 43, 54], 0, 0.0), ([1, 33, 43, 54], 1, 0.7951367192923365), ([16, 33, 43, 54], 1, 0.4447078112115838), ([17, 33, 43, 54], 0, 0.0), ([5, 33, 43, 54], 1, 0.6499294088589507), ([6, 33, 43, 54], 1, 0.8128244493379554), ([0, 33, 43, 54], 0, 0.0), ([18, 33, 43, 54], 0, 0.0), ([14, 33, 46, 54], 1, 0.8784680811568709), ([3, 33, 46, 54], 0, 0.0), ([2, 33, 46, 54], 0, 0.0), ([9, 33, 46, 54], 1, 0.7784136976708598), ([21, 33, 46, 54], 0, 0.0), ([1, 33, 46, 54], 1, 0.7130303294922333), ([16, 33, 46, 54], 1, 0.4378635061681803), ([17, 33, 46, 54], 0, 0.0), ([5, 33, 46, 54], 1, 0.6220729795133328), ([6, 33, 46, 54], 1, 0.8839887715584864), ([0, 33, 46, 54], 0, 0.0), ([18, 33, 46, 54], 0, 0.0), ([14, 38, 43, 54], 0, 0.0), ([3, 38, 43, 54], 0, 0.0), ([2, 38, 43, 54], 0, 0.0), ([9, 38, 43, 54], 0, 0.0383759967501908), ([21, 38, 43, 54], 0, 0.0), ([1, 38, 43, 54], 0, 0.0), ([16, 38, 43, 54], 0, 0.0), ([17, 38, 43, 54], 0, 0.0), ([5, 38, 43, 54], 0, 0.0), ([6, 38, 43, 54], 0, 0.0), ([0, 38, 43, 54], 0, 0.0), ([18, 38, 43, 54], 0, 0.0107608233560043), ([14, 38, 42, 54], 0, 0.0), ([3, 38, 42, 54], 0, 0.0), ([2, 38, 42, 54], 0, 0.0), ([9, 38, 42, 54], 0, 0.039429609402182), ([21, 38, 42, 54], 0, 0.0), ([1, 38, 42, 54], 0, 0.0), ([16, 38, 42, 54], 0, 0.0), ([17, 38, 42, 54], 0, 0.0), ([5, 38, 42, 54], 0, 0.0), ([6, 38, 42, 54], 0, 0.0), ([0, 38, 42, 54], 0, 0.0), ([18, 38, 42, 54], 0, 0.0), ([14, 34, 45], 0, 0.0), ([3, 34, 45], 0, 0.0), ([2, 34, 45], 0, 0.0), ([9, 34, 45], 0, 0.0156831954902024), ([21, 34, 45], 0, 0.0), ([1, 34, 45], 0, 0.0), ([16, 34, 45], 0, 0.0), ([17, 34, 45], 0, 0.0), ([5, 34, 45], 0, 0.0), ([6, 34, 45], 0, 0.0), ([0, 34, 45], 0, 0.0), ([18, 34, 45], 0, 0.0), ([14, 34, 46], 0, 0.0), ([3, 34, 46], 0, 0.0), ([2, 34, 46], 0, 0.0), ([9, 34, 46], 0, 0.0348924842853292), ([21, 34, 46], 0, 0.0), ([1, 34, 46], 0, 0.0), ([16, 34, 46], 0, 0.0), ([17, 34, 46], 0, 0.0), ([5, 34, 46], 0, 0.0), ([6, 34, 46], 0, 0.0), ([0, 34, 46], 0, 0.0), ([18, 34, 46], 0, 0.0), ([14, 28, 43], 1, 0.7399494290736808), ([3, 28, 43], 0, 0.0), ([2, 28, 43], 0, 0.0), ([9, 28, 43], 1, 0.7546035621571415), ([21, 28, 43], 0, 0.0), ([1, 28, 43], 1, 0.7381966063404011), ([16, 28, 43], 1, 0.9135617399814672), ([17, 28, 43], 1, 0.7235237217957214), ([5, 28, 43], 1, 0.8993690013420881), ([6, 28, 43], 1, 0.8960605588106714), ([0, 28, 43], 1, 0.8096176054826436), ([18, 28, 43], 1, 0.8747740207154665), ([14, 28, 42], 1, 0.3486151308991966), ([3, 28, 42], 0, 0.0), ([2, 28, 42], 0, 0.0), ([9, 28, 42], 1, 0.2117287460968805), ([21, 28, 42], 0, 0.0), ([1, 28, 42], 1, 0.4777508439058323), ([16, 28, 42], 1, 0.6301144537219455), ([17, 28, 42], 1, 0.8273239967909576), ([5, 28, 42], 1, 0.6005346497863205), ([6, 28, 42], 1, 0.5545600301888322), ([0, 28, 42], 1, 0.6223283125974389), ([18, 28, 42], 1, 0.6893039221102462), ([14, 33, 43, 54], 1, 0.8017381997378169), ([3, 33, 43, 54], 1, 0.1379556266844135), ([2, 33, 43, 54], 1, 0.7773887277971506), ([9, 33, 43, 54], 1, 0.9322766563740073), ([21, 33, 43, 54], 0, 0.0154892806773011), ([1, 33, 43, 54], 1, 0.7350461524805345), ([16, 33, 43, 54], 1, 0.7588002626187784), ([17, 33, 43, 54], 0, 0.0), ([5, 33, 43, 54], 1, 0.930077171550892), ([6, 33, 43, 54], 1, 0.7655830569204368), ([0, 33, 43, 54], 0, 0.0), ([18, 33, 43, 54], 1, 0.8141605171539413), ([14, 33, 46, 54], 1, 0.870359306917906), ([3, 33, 46, 54], 1, 0.22164415547965), ([2, 33, 46, 54], 1, 0.6661285106501126), ([9, 33, 46, 54], 1, 0.8183816106738958), ([21, 33, 46, 54], 1, 0.0597232731064658), ([1, 33, 46, 54], 1, 0.7286509417209601), ([16, 33, 46, 54], 1, 0.8643809338084733), ([17, 33, 46, 54], 1, 0.0818732295782234), ([5, 33, 46, 54], 1, 0.993008089958664), ([6, 33, 46, 54], 1, 0.848541216106827), ([0, 33, 46, 54], 1, 0.2697125435539211), ([18, 33, 46, 54], 1, 0.6956654924109106), ([14, 38, 43, 54], 1, 0.101307169086447), ([3, 38, 43, 54], 0, 0.0), ([2, 38, 43, 54], 0, 0.0043743467786233), ([9, 38, 43, 54], 0
+2025-08-11 13:43:02 - INFO - Overall label frequencies (top 10): [0.5     0.5     0.5     0.53125 0.53125 0.5625  0.65625 0.6875  0.71875
+ 0.8125 ]
+2025-08-11 13:43:02 - INFO - Test set label frequency deviation: 0.0961
+2025-08-11 13:43:02 - INFO - Fold 1 validation set deviation: 0.0860
+2025-08-11 13:43:02 - INFO - Fold 2 validation set deviation: 0.0983
+2025-08-11 13:43:02 - INFO - Fold 3 validation set deviation: 0.1787
+2025-08-11 13:43:02 - INFO - Fold 4 validation set deviation: 0.0693
+2025-08-11 13:43:02 - INFO - Fold 5 validation set deviation: 0.0965
+2025-08-11 13:43:02 - INFO - Average CV fold deviation: 0.1058 ± 0.0379
+
+
+Attempting to use device: cuda for generating ChemBERTa embeddings.
+Initializing ChemBERTa model (seyonec/ChemBERTa-zinc-base-v1) in Dataset...
+2025-08-11 13:43:02 - DEBUG - Starting new HTTPS connection (1): huggingface.co:443
+2025-08-11 13:43:02 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/tokenizer_config.json HTTP/1.1" 307 0
+2025-08-11 13:43:02 - DEBUG - https://huggingface.co:443 "HEAD /api/resolve-cache/models/seyonec/ChemBERTa-zinc-base-v1/761d6a18cf99db371e0b43baf3e2d21b3e865a20/tokenizer_config.json HTTP/1.1" 200 0
+2025-08-11 13:43:02 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/tree/main/additional_chat_templates?recursive=False&expand=False HTTP/1.1" 404 64
+2025-08-11 13:43:02 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/config.json HTTP/1.1" 307 0
+2025-08-11 13:43:02 - DEBUG - https://huggingface.co:443 "HEAD /api/resolve-cache/models/seyonec/ChemBERTa-zinc-base-v1/761d6a18cf99db371e0b43baf3e2d21b3e865a20/config.json HTTP/1.1" 200 0
+2025-08-11 13:43:04 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/model.safetensors HTTP/1.1" 404 0
+2025-08-11 13:43:04 - DEBUG - Starting new HTTPS connection (1): huggingface.co:443
+2025-08-11 13:43:04 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1 HTTP/1.1" 200 1669
+2025-08-11 13:43:04 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/commits/main HTTP/1.1" 200 3278
+2025-08-11 13:43:04 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/discussions?p=0 HTTP/1.1" 200 4205
+ChemBERTa model moved to cuda.
+ChemBERTa model loaded and frozen.
+Generating embeddings...
+Starting embeddings generation for trn split
+  0%|                                                                                                                                                         | 0/26 [00:00<?, ?it/s]2025-08-11 13:43:04 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/commits/refs%2Fpr%2F6 HTTP/1.1" 200 4243
+2025-08-11 13:43:04 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/refs%2Fpr%2F6/model.safetensors.index.json HTTP/1.1" 404 0
+  4%|█████▌                                                                                                                                           | 1/26 [00:00<00:07,  3.43it/s]2025-08-11 13:43:05 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/refs%2Fpr%2F6/model.safetensors HTTP/1.1" 302 0
+100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 26/26 [00:00<00:00, 49.50it/s]
+2025-08-11 13:43:05 - INFO - INFO: Number of classes: 57
+2025-08-11 13:43:05 - INFO - INFO: Number of reaction trn/val/tst: 26/5/6
+2025-08-11 13:43:05 - INFO - INFO: Base model path: ./trained_models/model_emb_bh_all_3q2asfee
+2025-08-11 13:43:05 - INFO - INFO (training): Total number of conditions: 8201
+2025-08-11 13:43:05 - INFO - INFO (training): Number conditions per reaction (min/avg/max): 192/383.33/482
+2025-08-11 13:43:05 - INFO - INFO (training): Number of catalysts: 28
+2025-08-11 13:43:05 - INFO - INFO (training): Number of solvent 1: 12
+2025-08-11 13:43:05 - INFO - INFO (training): Number of solvent 2: 0
+2025-08-11 13:43:05 - INFO - INFO (training): Number of additives: 2
+2025-08-11 13:43:05 - INFO - INFO (training): Number of bases: 14
+Processing folds:   0%|                                                                                                                                      | 0/5 [00:00<?, ?fold/s]2025-08-11 13:43:05 - INFO -
+--- Processing Fold 1/5 ---
+2025-08-11 13:43:05 - INFO - Model path for this fold: ./trained_models/model_emb_bh_all_3q2asfee_fold_0.pt
+2025-08-11 13:43:05 - INFO - INFO: Number of training samples: 21
+2025-08-11 13:43:05 - INFO - INFO: Number of validation samples: 5
+2025-08-11 13:43:05 - INFO - INFO: Number of testing samples: 6
+INFO: Number of training molecular embeddings: 21
+INFO: Number of validation molecular embeddings: 5
+INFO: Number of testing molecular embeddings: 6
+
+
+Attempting to use device: cuda for generating ChemBERTa embeddings.
+Initializing ChemBERTa model (seyonec/ChemBERTa-zinc-base-v1) in Dataset...
+2025-08-11 13:43:05 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/tokenizer_config.json HTTP/1.1" 307 0
+2025-08-11 13:43:05 - DEBUG - https://huggingface.co:443 "HEAD /api/resolve-cache/models/seyonec/ChemBERTa-zinc-base-v1/761d6a18cf99db371e0b43baf3e2d21b3e865a20/tokenizer_config.json HTTP/1.1" 200 0
+2025-08-11 13:43:05 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/tree/main/additional_chat_templates?recursive=False&expand=False HTTP/1.1" 404 64
+2025-08-11 13:43:05 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/config.json HTTP/1.1" 307 0
+2025-08-11 13:43:05 - DEBUG - https://huggingface.co:443 "HEAD /api/resolve-cache/models/seyonec/ChemBERTa-zinc-base-v1/761d6a18cf99db371e0b43baf3e2d21b3e865a20/config.json HTTP/1.1" 200 0
+2025-08-11 13:43:05 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/model.safetensors HTTP/1.1" 404 0
+ChemBERTa model moved to cuda.
+ChemBERTa model loaded and frozen.
+Generating embeddings...
+Starting embeddings generation for trn split
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 21/21 [00:00<00:00, 135.97it/s]
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1 HTTP/1.1" 200 1669                         | 14/21 [00:00<00:00, 135.45it/s]
+
+
+Attempting to use device: cuda for generating ChemBERTa embeddings.
+Initializing ChemBERTa model (seyonec/ChemBERTa-zinc-base-v1) in Dataset...
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/tokenizer_config.json HTTP/1.1" 307 0
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /api/resolve-cache/models/seyonec/ChemBERTa-zinc-base-v1/761d6a18cf99db371e0b43baf3e2d21b3e865a20/tokenizer_config.json HTTP/1.1" 200 0
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/commits/main HTTP/1.1" 200 3278
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/tree/main/additional_chat_templates?recursive=False&expand=False HTTP/1.1" 404 64
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/discussions?p=0 HTTP/1.1" 200 4205
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/config.json HTTP/1.1" 307 0
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /api/resolve-cache/models/seyonec/ChemBERTa-zinc-base-v1/761d6a18cf99db371e0b43baf3e2d21b3e865a20/config.json HTTP/1.1" 200 0
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/model.safetensors HTTP/1.1" 404 0
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/commits/refs%2Fpr%2F6 HTTP/1.1" 200 4243
+2025-08-11 13:43:06 - DEBUG - Starting new HTTPS connection (1): huggingface.co:443
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/refs%2Fpr%2F6/model.safetensors.index.json HTTP/1.1" 404 0
+ChemBERTa model moved to cuda.
+ChemBERTa model loaded and frozen.
+Generating embeddings...
+Starting embeddings generation for val split
+                                                                                                                                                                                     2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1 HTTP/1.1" 200 1669
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:00<00:00, 122.90it/s]
+
+
+Attempting to use device: cuda for generating ChemBERTa embeddings.
+Initializing ChemBERTa model (seyonec/ChemBERTa-zinc-base-v1) in Dataset...
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/refs%2Fpr%2F6/model.safetensors HTTP/1.1" 302 0
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/tokenizer_config.json HTTP/1.1" 307 0
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "HEAD /api/resolve-cache/models/seyonec/ChemBERTa-zinc-base-v1/761d6a18cf99db371e0b43baf3e2d21b3e865a20/tokenizer_config.json HTTP/1.1" 200 0
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/commits/main HTTP/1.1" 200 3278
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/tree/main/additional_chat_templates?recursive=False&expand=False HTTP/1.1" 404 64
+2025-08-11 13:43:06 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/discussions?p=0 HTTP/1.1" 200 4205
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/config.json HTTP/1.1" 307 0
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "HEAD /api/resolve-cache/models/seyonec/ChemBERTa-zinc-base-v1/761d6a18cf99db371e0b43baf3e2d21b3e865a20/config.json HTTP/1.1" 200 0
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/main/model.safetensors HTTP/1.1" 404 0
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/commits/refs%2Fpr%2F6 HTTP/1.1" 200 4243
+ChemBERTa model moved to cuda.
+ChemBERTa model loaded and frozen.
+Generating embeddings...
+Starting embeddings generation for tst split
+                                                                                                                                                                                     2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/refs%2Fpr%2F6/model.safetensors.index.json HTTP/1.1" 404 0
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:00<00:00, 122.00it/s]
+Processing folds:   0%|                                                                                                                                      | 0/5 [00:01<?, ?fold/s]
+Traceback (most recent call last):
+  File "/home/tarricol/AI_RCP_pub/train_gen_model.py", line 926, in <module>
+    success = algorithm(config=effective_config, wandb_is_active=WANDB_ACTIVE)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tarricol/AI_RCP_pub/train_gen_model.py", line 565, in algorithm
+    pos_count_matrix_1, pos_count_matrix_0, neg_count_matrix_1, neg_count_matrix_0 = create_pos_neg_count_matrices(train_labels, config["n_classes"])
+                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tarricol/AI_RCP_pub/utils/miscellaneous.py", line 24, in create_pos_neg_count_matrices
+    for condition_idx, pos_neg_flag in reaction_conditions:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/refs%2Fpr%2F6/model.safetensors HTTP/1.1" 302 0
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1 HTTP/1.1" 200 1669
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/commits/main HTTP/1.1" 200 3278
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/discussions?p=0 HTTP/1.1" 200 4205
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "GET /api/models/seyonec/ChemBERTa-zinc-base-v1/commits/refs%2Fpr%2F6 HTTP/1.1" 200 4243
+2025-08-11 13:43:07 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/refs%2Fpr%2F6/model.safetensors.index.json HTTP/1.1" 404 0
+2025-08-11 13:43:08 - DEBUG - https://huggingface.co:443 "HEAD /seyonec/ChemBERTa-zinc-base-v1/resolve/refs%2Fpr%2F6/model.safetensors HTTP/1.1" 302 0

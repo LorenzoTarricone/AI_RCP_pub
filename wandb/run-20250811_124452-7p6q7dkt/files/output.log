@@ -1,0 +1,120 @@
+2025-08-11 12:44:53 - INFO - INFO: Weights & Biases INITIALIZED. Run: glowing-water-907
+2025-08-11 12:44:53 - INFO -
+--- Effective Configuration for this Run ---
+2025-08-11 12:44:53 - INFO - wandb: True
+2025-08-11 12:44:53 - INFO - wandb_save_model: True
+2025-08-11 12:44:53 - INFO - verbose: True
+2025-08-11 12:44:53 - INFO - random_seed: 42
+2025-08-11 12:44:53 - INFO - device: cuda
+2025-08-11 12:44:53 - INFO - iterid: 0
+2025-08-11 12:44:53 - INFO - mode: trn
+2025-08-11 12:44:53 - INFO - model_type: emb
+2025-08-11 12:44:53 - INFO - filepath: data/bh_treshold_all_all_processed.npz
+2025-08-11 12:44:53 - INFO - frac_tst: 0.2
+2025-08-11 12:44:53 - INFO - n_folds: 5
+2025-08-11 12:44:53 - INFO - addh: False
+2025-08-11 12:44:53 - INFO - save_graphs: True
+2025-08-11 12:44:53 - INFO - load_graphs: False
+2025-08-11 12:44:53 - INFO - graph_path: None
+2025-08-11 12:44:53 - INFO - stratification_method: iterative
+2025-08-11 12:44:53 - INFO - stratify_top_k: 5
+2025-08-11 12:44:53 - INFO - split_indices_path: data/split_indices.pkl
+2025-08-11 12:44:53 - INFO - atom_emb: True
+2025-08-11 12:44:53 - INFO - morfeus_init: True
+2025-08-11 12:44:53 - INFO - ASE_opt: True
+2025-08-11 12:44:53 - INFO - Geometry_opt_type: Auto3D
+2025-08-11 12:44:53 - INFO - max_num_conformers: 3
+2025-08-11 12:44:53 - INFO - emb_split: None
+2025-08-11 12:44:53 - INFO - atom_emb_list: ['xtb', 'sasa']
+2025-08-11 12:44:53 - INFO - emb_to_use: ['cb', 'sec']
+2025-08-11 12:44:53 - INFO - save_embeddings: True
+2025-08-11 12:44:53 - INFO - verbose_sec: False
+2025-08-11 12:44:53 - INFO - batch_size: 128
+2025-08-11 12:44:53 - INFO - shuffle: False
+2025-08-11 12:44:53 - INFO - T_values: [1, 10, 50, 100, 500, 1000]
+2025-08-11 12:44:53 - INFO - n_sampling_val: 50
+2025-08-11 12:44:53 - INFO - n_sampling_test: 1000
+2025-08-11 12:44:53 - INFO - temperature: 1
+2025-08-11 12:44:53 - INFO - compute_random_baselines: True
+2025-08-11 12:44:53 - INFO - epochs: 200
+2025-08-11 12:44:53 - INFO - lr: 0.001
+2025-08-11 12:44:53 - INFO - weight_decay: 1e-10
+2025-08-11 12:44:53 - INFO - weight_bce: 2
+2025-08-11 12:44:53 - INFO - treshold: 0.4
+2025-08-11 12:44:53 - INFO - class_weights: True
+2025-08-11 12:44:53 - INFO - kl_annealing_epochs: 100
+2025-08-11 12:44:53 - INFO - ss_mode: on
+2025-08-11 12:44:53 - INFO - ss_epsilon_start: 1
+2025-08-11 12:44:53 - INFO - ss_epsilon_end: 0.1
+2025-08-11 12:44:53 - INFO - ss_decay_epochs: 100
+2025-08-11 12:44:53 - INFO - config_file: configs/gen_config.yaml
+2025-08-11 12:44:53 - INFO - W&B Run Name: glowing-water-907 (ID: 7p6q7dkt)
+2025-08-11 12:44:53 - INFO - -------------------------------------------
+
+2025-08-11 12:44:53 - INFO - INFO: Using random seed: 42
+2025-08-11 12:44:53 - INFO - INFO: Using device: cuda
+2025-08-11 12:44:53 - INFO - GPU name: NVIDIA L40S
+2025-08-11 12:44:53 - INFO - GPU memory allocated: 0.00 GB
+2025-08-11 12:44:53 - INFO - Created directory: ./trained_models/
+2025-08-11 12:44:53 - INFO - --- Generating graphs structures from dataset ---
+INFO: Using the following atom embeddings - ['xtb', 'sasa']
+  0%|                                                                                                                                                                       | 0/32 [00:00<?, ?it/s]2025-08-11 12:44:54 - DEBUG - Creating converter from 7 to 5
+2025-08-11 12:44:54 - DEBUG - Creating converter from 5 to 7
+2025-08-11 12:44:54 - DEBUG - Creating converter from 7 to 5
+2025-08-11 12:44:54 - DEBUG - Creating converter from 5 to 7
+Identified morfeus repository root: /home/tarricol/AI_RCP_pub/morfeus
+Added '/home/tarricol/AI_RCP_pub/morfeus' to sys.path.
+2025-08-11 12:44:54 - DEBUG - matplotlib data path: /home/tarricol/scratch/conda/envs/AI_RCP_env_3_backup_3/lib/python3.12/site-packages/matplotlib/mpl-data
+2025-08-11 12:44:54 - DEBUG - CONFIGDIR=/home/tarricol/.config/matplotlib
+2025-08-11 12:44:54 - DEBUG - interactive is False
+2025-08-11 12:44:54 - DEBUG - platform is linux
+2025-08-11 12:44:54 - DEBUG - CACHEDIR=/home/tarricol/.cache/matplotlib
+2025-08-11 12:44:54 - DEBUG - Using fontManager instance from /home/tarricol/.cache/matplotlib/fontlist-v390.json
+2025-08-11 12:44:55 - INFO - init
+2025-08-11 12:44:55 - DEBUG - call driver api: cuInit
+2025-08-11 12:44:55 - DEBUG - call runtime api: cudaRuntimeGetVersion
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [25:31<00:00, 47.86s/it]
+
+
+--------------------------------------------------
+Processing Summary:
+Total reactions processed: 32
+Expected length for all lists: 32
+
+List Lengths:
+  rmol_graphs[0]: 32
+  rmol_graphs[1]: 32
+  pmol_graphs[0]: 32
+
+Reaction Dictionary:
+  Labels (y): 32
+  SMILES (rsmi): 32
+
+Embeddings:
+  Molecular embeddings: 32
+
+All lists have correct length: True
+--------------------------------------------------
+
+
+Created directory: ./data_embeddings
+Saved molecular embeddings to: ./data_embeddings/embeddings_dict_bh_all.pkl
+Created directory: ./data_graphs
+Saved data to: ./data_graphs/graph_data_bh_all.pkl
+Normalizing sasa values
+2025-08-11 13:10:25 - INFO - INFO: Graph data processing complete.
+2025-08-11 13:10:25 - INFO - Using stratification method: iterative
+Traceback (most recent call last):
+  File "/home/tarricol/AI_RCP_pub/train_gen_model.py", line 926, in <module>
+    success = algorithm(config=effective_config, wandb_is_active=WANDB_ACTIVE)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tarricol/AI_RCP_pub/train_gen_model.py", line 276, in algorithm
+    test_indices, fold_splits = iterative_stratified_split(
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tarricol/AI_RCP_pub/utils/trn_val_tst_sampling.py", line 56, in iterative_stratified_split
+    multilabel_matrix = create_multilabel_matrix(reaction_labels, n_classes)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tarricol/AI_RCP_pub/utils/trn_val_tst_sampling.py", line 26, in create_multilabel_matrix
+    for condition_idx, pos_neg_flag in reaction_conditions:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
