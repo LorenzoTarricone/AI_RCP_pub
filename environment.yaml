@@ -1,0 +1,86 @@
+name: AI_RCP_env
+
+# Portable, cross-platform environment for the AI_RCP pipeline.
+#
+# This file lists only the direct dependencies of the project. Conda
+# resolves the right platform-specific binaries on the host (macOS incl.
+# Apple Silicon, Linux x86_64, Linux + NVIDIA GPU). For an exact pin of
+# the environment used to produce the paper's results on the HPC cluster,
+# see environment_hpc_linux_cuda.yaml (Linux + NVIDIA GPU only).
+#
+# Usage:
+#   conda env create -f environment.yaml
+#   conda activate AI_RCP_env
+#
+# CUDA on Linux: PyTorch from conda-forge ships with CUDA wheels by
+# default on linux-64 when a CUDA driver is detected. To force a CPU
+# build, replace `pytorch` below with `pytorch::pytorch=*=*cpu*`.
+# To use DGL CUDA wheels, replace the `dglteam` channel with
+# `dglteam/label/th24_cu124` (matching your PyTorch+CUDA version).
+
+channels:
+  - pytorch
+  - dglteam
+  - conda-forge
+
+dependencies:
+  - python=3.12
+  - pip
+
+  # Core scientific stack
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - tqdm
+  - joblib
+  - pyyaml
+  - h5py
+  - networkx
+  - sympy
+  - plotly
+
+  # Cheminformatics & computational chemistry
+  - rdkit
+  - openbabel
+  - ase
+  - auto3d
+  - xtb
+  - xtb-python
+  - dftd4
+  - tblite
+  - simple-dftd3
+  - wurlitzer
+
+  # Deep-learning / graph stack
+  - pytorch
+  - dgl
+  - xgboost
+
+  # NLP / transformer stack (used for ChemBERTa and tokenisers)
+  - transformers
+  - tokenizers
+  - huggingface_hub
+  - safetensors
+  - datasets
+
+  # Numerical extras
+  - numba
+  - llvmlite
+
+  # Experiment tracking & dev
+  - wandb
+  - jupyter
+  - ipykernel
+
+  # Pip-only packages (not available on conda-forge or only published on PyPI)
+  #
+  # aimnet is pinned to 0.0.1 because newer releases depend on warp-lang and
+  # a torch wheel that overwrites the conda-installed PyTorch on macOS,
+  # producing an OpenMP runtime conflict (libomp.dylib loaded twice).
+  - pip:
+      - aimnet==0.0.1
+      - pulp
+      - pytorch-ignite
+      - omegaconf
