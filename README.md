@@ -61,7 +61,6 @@ Here is a brief overview of the key directories in this repository:
 ├── data_graphs/                        # Cached molecular graph data used by the generative model (.pkl)
 ├── condition_embeddings_cache/         # Cached reaction-condition embeddings consumed by the XGBoost stage (.pkl)
 ├── reagents_dfs/                       # Reagent dataframes exported by SURF2VAEinput.py (--export_reagent_df)
-├── HPC_scripts/                        # Scripts for running jobs on an HPC cluster
 ├── models/                             # Model definitions (PyTorch and XGBoost)
 ├── outputs_xgboost/                    # Output directory for XGBoost models and results
 ├── scripts/                            # Helper scripts for running sweeps and jobs on HPC
