@@ -12,6 +12,7 @@ Usage:
 import argparse
 import yaml
 import os
+import sys
 import numpy as np
 import torch
 import logging
@@ -25,11 +26,12 @@ import json
 import time
 
 
-# Fix xtb PATH issue by adding conda environment bin to PATH
-conda_bin_path = "/home/tarricol/scratch/conda/envs/AI_RCP_env_3_backup_3/bin"
-if conda_bin_path not in os.environ.get('PATH', ''):
-    os.environ['PATH'] = f"{conda_bin_path}:{os.environ.get('PATH', '')}"
-    print(f"Added {conda_bin_path} to PATH for xtb access")
+# Ensure the active Python environment's bin directory (where xtb lives) is
+# on PATH. Derives the path from sys.executable so it works for any conda
+# env / virtualenv the script is launched with.
+_env_bin = os.path.dirname(sys.executable)
+if _env_bin and _env_bin not in os.environ.get("PATH", "").split(os.pathsep):
+    os.environ["PATH"] = f"{_env_bin}{os.pathsep}{os.environ.get('PATH', '')}"
 
 # Fix Numba-NumPy compatibility issue
 os.environ['NUMBA_NUMNPY_COMPAT'] = '1'

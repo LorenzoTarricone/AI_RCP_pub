@@ -113,6 +113,8 @@ conda activate AI_RCP_env
 
 This installs the project's direct dependencies (PyTorch, DGL, XGBoost, RDKit, the xtb / Auto3D / tblite chemistry stack, transformers, wandb, ...) and lets Conda resolve the right binaries for your platform. On macOS the resulting PyTorch supports the Apple Silicon MPS backend; on Linux Conda will pull CUDA-enabled wheels automatically when an NVIDIA driver is detected.
 
+> **Native dependency — xtb.** Several feature-extraction steps (e.g. `morfeus.xtb.XTB`) shell out to the `xtb` binary. It is provided by the `xtb` conda package listed in `environment.yaml`, so the recommended install is sufficient. If you choose to skip the conda environment and manage dependencies yourself, install xtb separately (e.g. `conda install -c conda-forge xtb` or via your distro's package manager) and make sure the resulting binary is on `PATH` — `inference.py` automatically prepends the active Python's `bin` directory, but only that location.
+
 If you hit a solver issue for a particular package on your platform, please open an issue — `environment.yaml` is intentionally lightly pinned so that future resolves stay possible, but individual packages may need tweaking as upstream channels evolve.
 
 ### Exact HPC reproduction
