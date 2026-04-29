@@ -22,7 +22,8 @@ This repository contains the code for a comprehensive computational pipeline des
   - [Retraining Best Models and Computing Baselines](#retraining-best-models-and-computing-baselines)
   - [Inference](#inference)
 - [Configuration](#configuration)
-- [Submodules](#submodules)
+- [Third-party packages](#third-party-packages)
+- [Notes for macOS users](#notes-for-macos-users)
 - [Contributing](#contributing)
 - [Citation](#citation)
 - [License](#license)
@@ -62,11 +63,10 @@ Here is a brief overview of the key directories in this repository:
 ├── reagents_dfs/                       # Reagent dataframes exported by SURF2VAEinput.py (--export_reagent_df)
 ├── HPC_scripts/                        # Scripts for running jobs on an HPC cluster
 ├── models/                             # Model definitions (PyTorch and XGBoost)
-├── morfeus/                            # Submodule for molecular feature calculation
 ├── outputs_xgboost/                    # Output directory for XGBoost models and results
 ├── scripts/                            # Helper scripts for running sweeps and jobs on HPC
 ├── trained_models/                     # Saved model weights (large .pt files; see note below)
-├── utils/                              # Utility scripts and helper functions
+├── utils/                              # Utility scripts and helper functions (incl. bootstrap.py)
 ├── precompute_condition_embeddings.py  # Script to precompute condition embeddings before XGBoost training
 ├── train_gen_model.py                  # Script for training the generative model
 ├── train_xgboost_yield.py              # Script for training the XGBoost yield prediction model
@@ -264,21 +264,14 @@ The behavior of the scripts is controlled by YAML configuration files in the `co
 
 Please refer to the configuration files for detailed explanations of each parameter.
 
-## Submodules
+## Third-party packages
 
-This repository includes the following submodule:
+*   **`morfeus`** — molecular-feature library from the [Digital Chemistry Laboratory](https://github.com/digital-chemistry-laboratory/morfeus). The repository previously vendored it as a git submodule; it is now installed from `conda-forge` as the `morfeus-ml` package (already listed in `environment.yaml`), so no extra setup step is required.
 
-*   **`morfeus`**: A Python package for calculating molecular features, developed by the [Digital Chemistry Laboratory](https://github.com/digital-chemistry-laboratory/morfeus). For more information, please refer to the `morfeus/README.md` file or its official documentation.
+## Notes for macOS users
 
-To clone the repository with the submodule, use:
-```bash
-git clone --recurse-submodules <repository-url>
-```
-
-If you have already cloned the repository, you can initialize the submodule with:
-```bash
-git submodule update --init --recursive
-```
+* The `environment.yaml` solver is constrained to `pytorch 2.3.x` because the only `osx-arm64` build of `dgl` on `conda-forge` (currently 2.3) hard-pins that version. Newer DGL builds for Apple Silicon are not yet available; revisit this pin when `dgl >= 2.4` lands on `conda-forge`.
+* Because `transformers >= 4.46` refuses to call `torch.load` on `torch < 2.6` (CVE-2025-32434) and the upstream `seyonec/ChemBERTa-zinc-base-v1` checkpoint only ships a legacy `pytorch_model.bin`, the project includes a small bootstrap helper (`utils/bootstrap.py::ensure_chemberta_safetensors`) that converts the cached weights to `model.safetensors` on first use. Inference, training, and embedding-precomputation scripts call it automatically; you do not need to run anything by hand.
 
 ## Contributing
 
