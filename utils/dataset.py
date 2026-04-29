@@ -134,6 +134,8 @@ class GraphDataset():
         if self.verbose: print(f"Initializing ChemBERTa model ({chemberta_model_name}) in Dataset...")
         # Load tokenizer and model onto CPU for safety with DataLoader workers
         try:
+            from utils.bootstrap import ensure_chemberta_safetensors
+            ensure_chemberta_safetensors(chemberta_model_name)
             self.tokenizer = AutoTokenizer.from_pretrained(chemberta_model_name)
             self.chemberta_model = AutoModel.from_pretrained(chemberta_model_name)
             self.chemberta_embedding_dim = self.chemberta_model.config.hidden_size
