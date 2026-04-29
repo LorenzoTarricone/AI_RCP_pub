@@ -1,25 +1,13 @@
 import os
-
-# Fix xtb PATH issue by adding conda environment bin to PATH
-conda_bin_path = "/home/tarricol/scratch/conda/envs/AI_RCP_env_3_backup_3/bin"
-if conda_bin_path not in os.environ.get('PATH', ''):
-    os.environ['PATH'] = f"{conda_bin_path}:{os.environ.get('PATH', '')}"
-
-# # Set Numba compatibility before importing numba
-# os.environ['NUMBA_NUMNPY_COMPAT'] = '1'
-# os.environ['NUMBA_DISABLE_JIT'] = '1'
-
-# import numba
-# # Configure numba for NumPy 2.3 compatibility
-# numba.config.NUMBA_NUMNPY_COMPAT = True
-# numba.config.NUMBA_DEFAULT_NUM_THREADS = 1
-# # Additional settings for newer NumPy versions
-# try:
-#     numba.config.NUMBA_USE_NEW_STYLE_TYPING = True
-# except:
-#     pass
-
 import sys
+
+# Ensure the conda environment's bin directory (where xtb lives) is on PATH.
+# Derives the bin path from sys.executable so it works regardless of where the
+# environment was created — replaces an earlier hardcoded HPC-specific path.
+_env_bin = os.path.dirname(sys.executable)
+if _env_bin and _env_bin not in os.environ.get("PATH", "").split(os.pathsep):
+    os.environ["PATH"] = f"{_env_bin}{os.pathsep}{os.environ.get('PATH', '')}"
+
 import time
 from wurlitzer import pipes #To block prints of the energy minimization engine
 
@@ -32,41 +20,11 @@ import torch
 from utils.utils_auto3d import optimize_ase_atoms_geometry
 
 def _initialize_morfeus(config):
-    # --- Setup to use the local morfeus clone ---
-
-    # 1. Determine the path to the root of the cloned 'morfeus' repository.
-    #    This assumes your notebook is in a directory, and the 'morfeus' cloned repo
-    #    is a direct subdirectory within that same directory.
-    #    e.g., /your_project_path/your_notebook.ipynb
-    #          /your_project_path/morfeus/ (cloned repo root)
-    #          /your_project_path/morfeus/morfeus/ (actual morfeus package)
-
-    # Get the directory where your notebook is currently running.
-    current_working_directory = os.getcwd()
-
-    # Construct the path to the root of the cloned 'morfeus' repository.
-    # This is the directory that CONTAINS the 'morfeus' package directory.
-    path_to_morfeus_repo_root = os.path.abspath(os.path.join(current_working_directory, 'morfeus'))
-
-    # Verify that this path exists to avoid confusion
-    if not os.path.isdir(path_to_morfeus_repo_root):
-        print(f"Error: The expected morfeus repository root directory was not found.")
-        print(f"Looked for: {path_to_morfeus_repo_root}")
-        print(f"Please ensure the 'morfeus' cloned repository is a direct subdirectory")
-        print(f"of your notebook's current working directory ('{current_working_directory}'),")
-        print(f"or adjust the 'path_to_morfeus_repo_root' variable in this script manually.")
-        # You might want to raise an error or exit if the path is critical
-        # For now, we'll let it proceed so Python's import error can also give feedback
-    else:
-        if config["verbose"]: print(f"Identified morfeus repository root: {path_to_morfeus_repo_root}")
-
-
-    # 2. Add this path to sys.path so Python can find the 'morfeus' package within it.
-    #    We insert at the beginning to give it priority over any installed versions,
-    #    though for a ModuleNotFoundError, it's more about finding it at all.
-    if path_to_morfeus_repo_root not in sys.path:
-        sys.path.insert(0, path_to_morfeus_repo_root)
-        if config["verbose"]: print(f"Added '{path_to_morfeus_repo_root}' to sys.path.")
+    # morfeus is now installed as the `morfeus-ml` conda package (see
+    # environment.yaml); the previous logic that bolted a local `morfeus/`
+    # submodule onto sys.path is no longer needed. Kept as a no-op so that
+    # call sites in this file remain valid.
+    return
 
 
 
