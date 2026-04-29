@@ -132,6 +132,8 @@ def _initialize_chemberta(config):
     chemberta_model_name = "seyonec/ChemBERTa-zinc-base-v1"
     print(f"Initializing ChemBERTa model ({chemberta_model_name})...")
     try:
+        from utils.bootstrap import ensure_chemberta_safetensors
+        ensure_chemberta_safetensors(chemberta_model_name)
         tokenizer = AutoTokenizer.from_pretrained(chemberta_model_name)
         model = AutoModel.from_pretrained(chemberta_model_name)
         embedding_dim = model.config.hidden_size

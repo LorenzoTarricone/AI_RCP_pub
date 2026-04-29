@@ -132,6 +132,8 @@ def _initialize_chemberta(config):
     print(f"Initializing ChemBERTa model ({chemberta_model_name}) in Dataset...")
     # Load tokenizer and model onto CPU for safety with DataLoader workers
     try:
+        from utils.bootstrap import ensure_chemberta_safetensors
+        ensure_chemberta_safetensors(chemberta_model_name)
         tokenizer = AutoTokenizer.from_pretrained(chemberta_model_name, force_download=True)
         chemberta_model = AutoModel.from_pretrained(chemberta_model_name, force_download=True)
         chemberta_embedding_dim = chemberta_model.config.hidden_size

@@ -89,6 +89,8 @@ class ConditionEmbeddingComputer:
             print(f"Initializing ChemBERTa model: {model_name}")
         
         try:
+            from utils.bootstrap import ensure_chemberta_safetensors
+            ensure_chemberta_safetensors(model_name)
             self.tokenizer = AutoTokenizer.from_pretrained(model_name)
             self.model = AutoModel.from_pretrained(model_name)
             self.embedding_dim = self.model.config.hidden_size
