@@ -41,6 +41,10 @@ dependencies:
   - sympy
   - plotly
 
+  # setuptools<80 keeps the legacy `pkg_resources` module available — Auto3D
+  # 2.3 (the latest on conda-forge) still imports it at module load time.
+  - setuptools<80
+
   # Cheminformatics & computational chemistry
   - rdkit
   - openbabel
@@ -52,14 +56,27 @@ dependencies:
   - tblite
   - simple-dftd3
   - wurlitzer
+  # morfeus-ml is the upstream `morfeus` package from the Digital Chemistry
+  # Laboratory, conda-packaged. The repo previously shipped morfeus as a
+  # git submodule (now removed); installing from conda-forge is simpler
+  # and avoids the empty-submodule pitfall.
+  - morfeus-ml
 
   # Deep-learning / graph stack
+  # On osx-arm64 conda-forge currently ships dgl 2.3 only; that build
+  # imports `torchdata.datapipes`, which was removed in torchdata 0.8,
+  # so torchdata is pinned to the last compatible series.
   - pytorch
   - dgl
+  - torchdata<0.8
   - xgboost
 
   # NLP / transformer stack (used for ChemBERTa and tokenisers)
-  - transformers
+  # transformers is pinned to >=4.45,<5 because:
+  #   - 5.x requires torch>=2.4, incompatible with conda-forge dgl 2.3 on osx-arm64
+  #   - <4.45 still uses removed huggingface_hub APIs (HfFolder, Repository),
+  #     which conda's modern huggingface_hub no longer exposes
+  - transformers>=4.45,<5
   - tokenizers
   - huggingface_hub
   - safetensors
@@ -74,13 +91,16 @@ dependencies:
   - jupyter
   - ipykernel
 
-  # Pip-only packages (not available on conda-forge or only published on PyPI)
+  # Pip-only packages (not available on conda-forge or only published on PyPI).
   #
-  # aimnet is pinned to 0.0.1 because newer releases depend on warp-lang and
-  # a torch wheel that overwrites the conda-installed PyTorch on macOS,
-  # producing an OpenMP runtime conflict (libomp.dylib loaded twice).
+  # NOTE: aimnet is intentionally NOT installed here. Both 0.0.1 and 0.1.1
+  # transitively pin a `torch` wheel that overwrites the conda-installed
+  # PyTorch in-place on macOS, producing an OpenMP runtime conflict
+  # (`OMP: Error #15`, libomp.dylib loaded twice). aimnet is only needed
+  # by utils/utils_auto3d.py for the AIMNet2-ASE calculator. If you need
+  # it, install it after the env is created with --no-deps:
+  #     pip install --no-deps aimnet==0.0.1
   - pip:
-      - aimnet==0.0.1
       - pulp
       - pytorch-ignite
       - omegaconf
