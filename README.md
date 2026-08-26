@@ -154,6 +154,28 @@ Each dataset includes detailed information for every reaction, such as:
 *   Starting materials, reagents, catalysts, and solvents, with their names, SMILES strings, and stoichiometric equivalents
 *   Product information, including SMILES and yield (`product_1_area%`)
 
+### Relationship to the Zenodo archive
+
+The CSVs in `data/` and the CSVs in the [Zenodo archive](https://doi.org/10.5281/zenodo.18185850)
+contain **the same reactions** — identical row counts, aligned row-for-row by `rxn_id` — but not
+quite the same columns. The files here are the ones the pipeline in this repository consumes; the
+Zenodo files are the SURF-format archival release. If you want to reproduce the results in the
+paper, use the copies in `data/`.
+
+| column | in `data/` | on Zenodo | note |
+|---|---|---|---|
+| `ligand_smiles` | ✗ | ✓ | structure of the phosphine/NHC ligand; not needed by the pipeline, which keys on `catalyst_name` |
+| `suff_yield` | ✓ | ✗ | binary positive/negative label. **Exactly** reconstructible as `product_1_area% > 0.05` (verified on all 10,138 / 3,426 rows of the `_all` files) |
+| `additives_name_merged`, `additives_smiles_merged`, `additives_fraction_merged` | ✓ | ✗ | the `Additive` condition class |
+| `YieldCategory` | ✓ | ✗ | not used anywhere in the pipeline |
+
+Only the additive columns are genuinely irrecoverable from the Zenodo files. They matter for a
+minority of wells — a real (non-`NoAdditive`) additive appears in 4.6 % of Buchwald–Hartwig rows
+(TBAB, sodium trifluoroacetate, potassium 2-ethylhexanoate) and 14.9 % of Suzuki–Miyaura rows
+(MeOH, potassium 2-ethylhexanoate) — but running `SURF2VAEinput.py` on the Zenodo CSVs will silently
+drop the `Additive` category, giving a smaller condition vocabulary (57 → 55 components for
+`bh_all`, 34 → 32 for `sm_all`) and therefore numbers that will not match the paper exactly.
+
 ## Usage
 
 ### Data Preparation
