@@ -61,3 +61,12 @@ best_results/
 experiment_2_results/
 experiment_3_results/
 outputs_retrain/
+
+# Model weights are never distributed with this repository. They are trained artefacts and,
+# for the models behind the paper, were trained on data that cannot be released. Train your own.
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+trained_models/
+outputs_xgboost/models/

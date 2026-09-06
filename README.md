@@ -64,13 +64,15 @@ Here is a brief overview of the key directories in this repository:
 ├── models/                             # Model definitions (PyTorch and XGBoost)
 ├── outputs_xgboost/                    # Output directory for XGBoost models and results
 ├── scripts/                            # Helper scripts for running sweeps and jobs on HPC
-├── trained_models/                     # Saved model weights (large .pt files; see note below)
+├── trained_models/                     # Output directory for model weights you train (none shipped)
 ├── utils/                              # Utility scripts and helper functions (incl. bootstrap.py)
 ├── precompute_condition_embeddings.py  # Script to precompute condition embeddings before XGBoost training
 ├── train_gen_model.py                  # Script for training the generative model
 ├── train_xgboost_yield.py              # Script for training the XGBoost yield prediction model
 ├── retrain_best_models.py              # Retrains the best generative-model configurations multiple times
 ├── retrain_random_baselines.py         # Computes random / structured / frequency-chain baseline metrics
+├── experiment_2.py                     # Single-transformation zero-shot / few-shot case study
+├── experiment_3.py                     # Constrained ILP vs naive plate-design comparison
 ├── inference.py                        # Script for running inference
 ├── environment.yaml                    # Portable Conda environment file (recommended)
 ├── environment_hpc_linux_cuda.yaml     # Fully-pinned HPC environment (Linux + CUDA 12.4 only)
@@ -93,16 +95,30 @@ The following directories are not raw inputs — they are caches produced by the
 
 ### Trained model weights
 
-`trained_models/` ships with several pre-trained `.pt` checkpoints (the largest are ~80 MB each, totalling several hundred MB). These are tracked directly in the repository for now so that `inference.py` works out of the box; a future revision may move them to the Zenodo archive (see [Citation](#citation)) or to Git LFS. If you only intend to retrain from scratch, you can safely ignore or delete this directory.
+**No pre-trained model weights are distributed with this repository.** The models behind the paper
+were trained on the full internal datasets, which cannot be released, so they are not published
+here; `trained_models/` and `outputs_xgboost/models/` are output directories that the training
+scripts create and populate.
 
-> **These checkpoints were trained on the full internal datasets, not on the public subset in
-> `data/`.** They therefore carry the internal component vocabulary (92 components for `bh_all`,
-> against 57 for the public subset), which has two consequences. They are the models behind the
-> numbers in the paper, so they are the right ones to use for `inference.py` if you want to
-> reproduce published predictions; but they are **not** interchangeable with models you train here
-> from the public data, and loading one against a public-data configuration will fail on a
-> dimension mismatch rather than silently produce wrong answers. Anything you train from this
-> repository uses the public vocabulary throughout and is self-consistent.
+Every script that needs weights therefore expects you to train them first, which the public data in
+`data/` supports end to end:
+
+```bash
+# a generative model (needed by inference.py and experiment_3.py)
+python retrain_best_models.py --config_file configs/case_study/bh_all_seq_emb.yaml --n_trainings 1
+
+# optionally, the XGBoost yield model used for the pruning step in inference.py
+python train_xgboost_yield.py --config_file configs/xgboost_config.yaml
+```
+
+Then point `model_path_bh` / `model_path_sm` (and, if you want the pruning step,
+`xgb_model_path_bh` / `xgb_model_path_sm`) in `configs/inference_config.yaml` at the files that
+produces.
+
+A model trained here uses the public component vocabulary throughout (57 components for `bh_all`,
+against 92 internally) and is self-consistent, so the pipeline runs normally. It will not reproduce
+the exact numbers reported in the paper, which come from the larger internal datasets — see
+[Datasets](#datasets).
 
 ## Installation
 
@@ -347,10 +363,10 @@ inference run.
 
 ### Inference
 
-To run inference, you need a trained generative model to sample reaction conditions. Optionally, you can also use a trained XGBoost model to score these conditions and predict their yield, which helps in pruning low-quality suggestions.
+To run inference, you need a trained generative model to sample reaction conditions. None is shipped with this repository (see [Trained model weights](#trained-model-weights)), so train one first. Optionally, you can also use a trained XGBoost model to score these conditions and predict their yield, which helps in pruning low-quality suggestions.
 
 1.  **Configure Inference**: Open `configs/inference_config.yaml`.
-    *   Set `model_path` to the path of your trained generative model (e.g., `trained_models/model_seq_emb_bh_all_0.pt`).
+    *   Set `model_path_bh` or `model_path_sm` (whichever matches `rtype`) to the path of the generative model you trained.
     *   To enable yield prediction and pruning, set `xgb_model_path` to the path of your trained XGBoost model and `xgb_config_path` to its corresponding configuration file.
     *   Specify the input reaction by setting `starting_material_1`, `starting_material_2`, and `product` SMILES strings.
 

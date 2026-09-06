@@ -17,10 +17,11 @@ starting_material_1: "FC(F)[C@@H]1COC(=O)N1c2cn3CCOc4cc(Br)ccc4c3n2"
 starting_material_2: "COc1cc(nn2cc(nc12)C)[B]1OC(C)(C)C(C)(C)O1"
 product: "COc1cc(nn2cc(nc12)C)-c1ccc-2c(c1)OCCn1cc(nc12)N1[C@@H](COC1=O)C(F)F"
 
-#Model path bh (explicit path used for inference)
-model_path_bh: "/home/USER/AI_RCP/best_models/best_model_seq_emb_bh_all_20250806-120957.pt"
-# # Model path sm (explicit path used for inference)
-model_path_sm: "/home/USER/AI_RCP/best_models/best_model_seq_emb_sm_all_20250806-121025.pt"
+# Path to the generative model to run inference with. No pre-trained weights are
+# distributed with this repository (see README, "Trained model weights"): train one with
+# train_gen_model.py or retrain_best_models.py and point these at the resulting .pt file.
+model_path_bh: "trained_models/<your_bh_model>.pt"
+model_path_sm: "trained_models/<your_sm_model>.pt"
 
 iterid: 0  # Model iteration ID
 
@@ -54,11 +55,11 @@ treshold: 0.4
 
 # XGBoost scoring and pruning
 #BH example
-xgb_model_path_bh: "/home/USER/AI_RCP/outputs_xgboost/models/best_model_all_bh_chemberta_point_wise.pkl"
+xgb_model_path_bh: "outputs_xgboost/models/<your_bh_xgb_model>.pkl"
 xgb_config_path_bh: "outputs_xgboost/reports/best_config_all_bh_chemberta_point_wise.json"
 
 # #SM example
-xgb_model_path_sm: "/home/USER/AI_RCP/outputs_xgboost/models/best_model_all_sm_chemberta_point_wise.pkl"
+xgb_model_path_sm: "outputs_xgboost/models/<your_sm_xgb_model>.pkl"
 xgb_config_path_sm: "outputs_xgboost/reports/best_config_all_sm_chemberta_point_wise.json"
 
 # Pruning controls for sampled conditions
