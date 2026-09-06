@@ -22,7 +22,7 @@ conda activate AI_RCP_env_3_backup_4
 #python train_gen_model.py --config_file configs/base_config.yaml
 # python train_xgboost_yield_indexed.py --config_file configs/xgboost_config.yaml
 python experiment_2.py \
-    --config_file best_configs_sm/sm_all_seq_emb.yaml \
+    --config_file configs/case_study/sm_all_seq_emb.yaml \
     --test_smiles_list "FC(F)[C@@H]1COC(=O)N1c2cn3CCOc4cc(Br)ccc4c3n2.COc1cc(nn2cc(nc12)C)[B]1OC(C)(C)C(C)(C)O1>>COc1cc(nn2cc(nc12)C)-c1ccc-2c(c1)OCCn1cc(nc12)N1[C@@H](COC1=O)C(F)F" \
     --test_injection_percentage 0.2
 

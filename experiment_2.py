@@ -12,7 +12,6 @@ from datetime import datetime
 import json
 import shutil
 from collections import defaultdict
-from sklearn.model_selection import train_test_split
 
 def flatten_wandb_config(config):
     """Recursively flattens a wandb config dictionary."""
@@ -29,7 +28,7 @@ def flatten_wandb_config(config):
 from utils.create_graphs import get_graph_data, load_graph_data
 from utils.collate_functions import collate_reaction_graphs, collate_graphs_and_embeddings
 from utils.dataset import GraphDataset, get_cardinalities_classes
-from utils.evaluate_model import evaluate_model
+from utils.evaluate_model import evaluate_model, evaluate_model_and_get_preds
 from utils.trn_val_tst_sampling import (
     iterative_stratified_split,
 )
@@ -190,11 +189,10 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
     device = torch.device("cuda" if (torch.cuda.is_available() and config["device"] == "cuda") else "cpu")
     logger.info(f"INFO: Using device: {device}")
 
-    cuda = device  # used unconditionally below; must be set for CPU runs too
-
     if device.type == "cuda":
         logger.info(f"GPU name: {torch.cuda.get_device_name(0)}") #prints the GPU name
         logger.info(f"GPU memory allocated: {torch.cuda.memory_allocated(0) / 1024**3:.2f} GB") #prints the amount of GPU memory allocated.
+        cuda = device
 
     os.makedirs('./trained_models/', exist_ok=True)
     
@@ -258,32 +256,36 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
     logger.info("--- Splitting data into a fixed train/test set ---")
     num_reactions = len(all_rmol_graphs)
     
-    # --- Load pre-defined split indices ---
-    split_indices_path = f'data/split_indices_{config["rtype"]}_{config["data_type"]}.pkl'
-    try:
-        with open(split_indices_path, 'rb') as f:
-            split_indices = pkl.load(f)
-        test_indices = split_indices['test_indices']
-        
-        # Consolidate all non-test indices into a single training pool
-        all_indices = np.arange(num_reactions)
-        train_pool_indices = np.setdiff1d(all_indices, test_indices)
-
-        logger.info(f"Loaded split indices from {split_indices_path}")
-
-    except FileNotFoundError:
-        logger.warning(f"Split indices file not found at {split_indices_path}. Falling back to random split.")
-        # Using iterative stratification for a robust split
-        test_indices, train_val_splits = iterative_stratified_split(
-            all_reaction_labels, config["n_classes"],
-            test_size=frac_tst, n_folds=1, # n_folds=1 gives one train/test split
-            random_state=config["random_seed"]
-        )
-        train_pool_indices = train_val_splits[0][0] # The "training" part of the only split
+    # --- Custom Data Split based on SMILES ---
+    logger.info("--- Splitting data based on provided SMILES list ---")
+    test_smiles_list = config['test_smiles_list']
     
+    all_smiles_np = np.array(all_reaction_smiles)
+    
+    # Find indices for the test set
+    test_indices_mask = np.isin(all_smiles_np, test_smiles_list)
+    test_indices = np.where(test_indices_mask)[0]
+
+    #raise error if test_indices is empty
+    if len(test_indices) == 0:
+        logger.error("No reactions found for the provided test SMILES list. Aborting.")
+        return False
+    
+    if config['test_injection_percentage'] == 0:
+        train_pool_indices = np.where(~test_indices_mask)[0]
+    else:
+        #will train on everything
+        train_pool_indices = np.arange(len(all_rmol_graphs))
+
+
+    if len(test_indices) == 0:
+        logger.error("No reactions found for the provided test SMILES list. Aborting.")
+        return False
+        
     logger.info(f"Total reactions: {num_reactions}")
     logger.info(f"Training pool size: {len(train_pool_indices)}")
     logger.info(f"Test set size: {len(test_indices)}")
+
 
     ############################### MODEL PARAMETERS ################################
     ################################# import ####################################
@@ -363,6 +365,19 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
     test_pmol_graphs = [all_pmol_graphs[i] for i in test_indices]
     test_labels = [all_reaction_labels[i] for i in test_indices]
     test_smiles = [all_reaction_smiles[i] for i in test_indices]
+
+    if config['test_injection_percentage'] > 0:
+        #select for each set of test labels a percentage of the labels to inject into the training set
+        indices_to_inject_for_each_condition = {}
+        for i, labels in enumerate(test_labels):
+            num_to_inject = int(len(labels) * config['test_injection_percentage'])
+            indices_to_inject = np.random.choice(np.arange(len(labels)), size=num_to_inject, replace=False)
+            indices_to_keep_in_test_set = [j for j in range(len(labels)) if j not in indices_to_inject]
+            test_labels[i] = [labels[j] for j in indices_to_keep_in_test_set]
+            indices_to_inject_for_each_condition[test_indices[i]] = indices_to_inject
+
+  
+
     test_mol_emb = None
     if config["model_type"] in ["emb", "seq_emb"]:
         test_mol_emb = [all_embeddings_mol[i] for i in test_indices]
@@ -379,100 +394,28 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
         tst_y_neg = [[item_tuple[0] for item_tuple in sublist if item_tuple[1] == 0] for sublist in tst_y]
 
 
-    # Initialize test set consistency tracking
-    first_run_test_hash = None
-    
     for run_idx in range(n_trainings):
         logger.info(f"\n--- Starting Training Run {run_idx + 1}/{n_trainings} ---")
-        
-        # Verify test set consistency across runs
-        test_set_hash = hash(tuple(sorted(test_indices)))
-        if run_idx == 0:
-            first_run_test_hash = test_set_hash
-            logger.info(f"Run {run_idx+1}: Test set established with {len(test_indices)} samples (hash: {test_set_hash})")
-        else:
-            if test_set_hash != first_run_test_hash:
-                logger.error(f"Run {run_idx+1}: Test set inconsistency detected! Hash {test_set_hash} != {first_run_test_hash}")
-                raise RuntimeError("Test set changed between runs - this violates fair comparison!")
-            logger.debug(f"Run {run_idx+1}: Test set consistency verified (hash: {test_set_hash})")
 
         # --- Set random seed for this run for model initialization and data shuffling ---
         if random_seed is not None:
             run_seed = random_seed + run_idx
             torch.manual_seed(run_seed)
             np.random.seed(run_seed)
-            # Also set CUDA seed for GPU reproducibility
-            if torch.cuda.is_available():
-                torch.cuda.manual_seed(run_seed)
-                torch.cuda.manual_seed_all(run_seed)
-            # Set PyTorch backend deterministic behavior (slower but more reproducible)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-            logger.info(f"Run {run_idx+1}: Set random seed to {run_seed} (with deterministic CUDA)")
+            logger.info(f"Run {run_idx+1}: Set random seed to {run_seed}")
         else:
             # To ensure different initializations if no seed is given
             torch.seed()
             np.random.seed(None) # Seed from OS
             logger.info(f"Run {run_idx+1}: No base random seed provided. Using fresh random initialization for this run.")
 
-        # --- Split training pool into train and validation for proper early stopping ---
-        # Use a small validation set even during final training to prevent overfitting
-        val_size = config.get("final_val_size", 0.1)  # Default to 10% for validation
-        use_early_stopping = config.get("use_early_stopping", True)  # Allow disabling if needed
-        
-        if use_early_stopping and len(train_pool_indices) > 10:  # Only split if we have enough data
-            # Use the same stratification method as in train_gen_model.py
-            stratification_method = config.get("stratification_method", "iterative")
-            
-            # Get labels for stratification
-            train_pool_labels = [all_reaction_labels[i] for i in train_pool_indices]
-            
-            try:
-                # Use the new dedicated stratified train/val split function
-                from utils.trn_val_tst_sampling import stratified_train_val_split
-                
-                # Get relative indices within the training pool
-                temp_train_idx, temp_val_idx = stratified_train_val_split(
-                    train_pool_labels, 
-                    config["n_classes"],
-                    val_size=val_size,
-                    stratification_method=stratification_method,
-                    top_k=config.get('stratify_top_k', 5),
-                    random_state=run_seed if random_seed is not None else None
-                )
-                
-                # Map back to original indices
-                train_indices_run = train_pool_indices[temp_train_idx]
-                val_indices_run = train_pool_indices[temp_val_idx]
-                
-                logger.info(f"Run {run_idx+1}: Used {stratification_method} stratification via stratified_train_val_split")
-                    
-                # Verify no data loss and no overlap
-                total_split_size = len(train_indices_run) + len(val_indices_run)
-                overlap = len(set(train_indices_run) & set(val_indices_run))
-                
-                if total_split_size != len(train_pool_indices):
-                    logger.error(f"Run {run_idx+1}: Data loss detected! Original: {len(train_pool_indices)}, Split: {total_split_size}")
-                elif overlap > 0:
-                    logger.error(f"Run {run_idx+1}: Data overlap detected! {overlap} samples in both train and val")
-                else:
-                    logger.info(f"Run {run_idx+1}: Split training pool using {stratification_method} stratification")
-                    logger.info(f"Run {run_idx+1}: Reserved {len(val_indices_run)} samples ({val_size:.1%}) for validation")
-                    logger.info(f"Run {run_idx+1}: ✓ No data loss, no overlap confirmed")
-                
-            except Exception as e:
-                logger.warning(f"Run {run_idx+1}: Stratified split failed: {e}. Using simple random split.")
-                train_indices_run, val_indices_run = train_test_split(
-                    train_pool_indices, 
-                    test_size=val_size, 
-                    random_state=run_seed if random_seed is not None else None
-                )
-        else:
-            # Fallback: use full training pool for both (original behavior)
-            train_indices_run = train_pool_indices
-            val_indices_run = train_pool_indices
-            logger.warning(f"Run {run_idx+1}: Using full training pool for both training and validation (early stopping disabled or insufficient data)")
+        # --- Use the full training pool for both training and validation ---
+        # As per the request, we train on all data not in the test set.
+        # The validation set is made identical to the training set.
+        train_indices_run = train_pool_indices
+        val_indices_run = train_pool_indices
 
+        logger.info(f"Run {run_idx+1}: Using full training pool for both training and validation.")
         logger.info(f"Run {run_idx+1}: Train size: {len(train_indices_run)}, Validation size: {len(val_indices_run)}")
 
         # --- Prepare DataLoaders for the run ---
@@ -486,6 +429,22 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
         val_labels = [all_reaction_labels[i] for i in val_indices_run]
         val_smiles = [all_reaction_smiles[i] for i in val_indices_run]
 
+        if config['test_injection_percentage'] > 0:
+            train_index_map = {global_idx: local_idx for local_idx, global_idx in enumerate(train_indices_run)}
+            val_index_map = {global_idx: local_idx for local_idx, global_idx in enumerate(val_indices_run)}
+            for index, indices_to_inject in indices_to_inject_for_each_condition.items():
+                if index in train_index_map:
+                    local_train_idx = train_index_map[index]
+                    original_train_labels = np.array(train_labels[local_train_idx], dtype=object)
+                    train_labels[local_train_idx] = original_train_labels[indices_to_inject].tolist()
+
+                if index in val_index_map:
+                    local_val_idx = val_index_map[index]
+                    original_val_labels = np.array(val_labels[local_val_idx], dtype=object)
+                    val_labels[local_val_idx] = original_val_labels[indices_to_inject].tolist()
+
+        # --- Remove conditions from training set that are in the test set ---
+
         train_mol_emb, val_mol_emb = None, None
         if config["model_type"] in ["emb", "seq_emb"]:
             train_mol_emb = [all_embeddings_mol[i] for i in train_indices_run]
@@ -497,48 +456,55 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
         trn_loader = DataLoader(dataset=trndata, batch_size=config["batch_size"], shuffle=True, collate_fn=config["collate_fn"])
         val_loader = DataLoader(dataset=valdata, batch_size=config["batch_size"], shuffle=False, collate_fn=config["collate_fn"])
 
-        # --- Model Training for the run ---
-        if config["class_weights"]:
-            pos_count_matrix_1, pos_count_matrix_0, neg_count_matrix_1, neg_count_matrix_0 = create_pos_neg_count_matrices(train_labels, config["n_classes"])
-            config["train_pos_count_matrix_1"] = pos_count_matrix_1
-            config["train_pos_count_matrix_0"] = pos_count_matrix_0
-            config["train_neg_count_matrix_1"] = neg_count_matrix_1
-            config["train_neg_count_matrix_0"] = neg_count_matrix_0
-        else:
-            config["train_pos_count_matrix_1"] = None
-            config["train_pos_count_matrix_0"] = None
-            config["train_neg_count_matrix_1"] = None
-            config["train_neg_count_matrix_0"] = None
-            config["train_pos_count_matrix"] = None
-            config["train_neg_count_matrix"] = None
-
+        # --- Model and Trainer setup ---
         model_path_run = f'./trained_models/retrain_run_{config["model_type"]}_{config["rtype"]}_{config["data_type"]}_{run_identifier}_run_{run_idx}.pt'
-        config["model_path"] = model_path_run
         
+        # Set model_path in config before initializing trainer
+        if config.get('load_model_path') and os.path.exists(config['load_model_path']):
+            config['model_path'] = config['load_model_path']
+        else:
+            config['model_path'] = model_path_run
+        
+        # Instantiate Model
         if config["model_type"] == 'rxnfp': 
             net = Model(tstdata.fp_dim * 3 + 1, config["n_classes"])
-            trainer = Trainer(net, cuda, config)
         elif (config["model_type"] == 'baseline'): 
             net = Model(tstdata.node_dim, tstdata.edge_dim, config["n_classes"])
-            trainer = Trainer(net, cuda, config)
         elif config["model_type"] == 'seq':
             net = Model(config["rtype"], tstdata.node_dim, tstdata.edge_dim, config["n_classes"], config["n_info"])
-            trainer = Trainer(net, cuda, config)
         elif config["model_type"] == 'emb':
             net = Model(tstdata.node_dim, tstdata.edge_dim, config["n_classes"], tstdata.emb_dim)
-            trainer = Trainer(net, cuda, config)
         elif config["model_type"] == 'seq_emb':
             net = Model(config["rtype"], tstdata.node_dim, tstdata.edge_dim, config["n_classes"], config["n_info"], tstdata.emb_dim)
-            trainer = Trainer(net, cuda, config)
 
-        if config["mode"] == 'trn':
+        trainer = Trainer(net, device, config)
+
+        # --- Load or Train ---
+        if config.get('load_model_path') and os.path.exists(config['load_model_path']):
+            logger.info(f"Loading pre-trained model from {config['load_model_path']}")
+            trainer.load()
+        else:
+            logger.info("Starting new training run...")
+            if config["class_weights"]:
+                pos_count_matrix_1, pos_count_matrix_0, neg_count_matrix_1, neg_count_matrix_0 = create_pos_neg_count_matrices(train_labels, config["n_classes"])
+                config["train_pos_count_matrix_1"] = pos_count_matrix_1
+                config["train_pos_count_matrix_0"] = pos_count_matrix_0
+                config["train_neg_count_matrix_1"] = neg_count_matrix_1
+                config["train_neg_count_matrix_0"] = neg_count_matrix_0
+            else:
+                config["train_pos_count_matrix_1"] = None
+                config["train_pos_count_matrix_0"] = None
+                config["train_neg_count_matrix_1"] = None
+                config["train_neg_count_matrix_0"] = None
+                config["train_pos_count_matrix"] = None
+                config["train_neg_count_matrix"] = None
+
             trainer.training(trn_loader, val_loader, config["epochs"])
-        elif config["mode"] == 'tst':
+            # After training, load the best model that was saved during the run
             trainer.load()
 
-        # --- Evaluate on Test Set ---
-        trainer.load() 
-        evaluation_results = evaluate_model(trainer, tst_loader, tst_y_pos, tst_y_neg, config, run_idx, wandb_is_active, logger)
+        # --- Evaluate on Test Set --- 
+        evaluation_results = evaluate_model_and_get_preds(trainer, tst_loader, tst_y_pos, tst_y_neg, config, logger)
 
         # Determine the performance of the current run based on evaluation results
         current_performance = -1.0 # Default value
@@ -593,76 +559,18 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
             if wandb_is_active and wandb.run:
                 wandb.summary['best_test_performance'] = best_performance
 
-    # --- Compute Baselines ---
-    if config.get("compute_random_baselines", False):
-        logger.info("\n--- Computing Baselines on Test Set ---")
-        
-        T_values = config.get("T_values", [1, 10, 50, 100, 500, 1000])
-        baseline_results_rows = []
-        
-        train_labels_full_pool = [all_reaction_labels[i] for i in train_pool_indices]
-
-        for T in T_values:
-            # --- Most Frequent Baseline (calculated once, used for all T) ---
-            mf_acc_pos, mf_macro_pos, mf_micro_pos = compute_most_frequent_baseline(
-                tst_y_pos, train_labels_full_pool, config["n_info"], config["rtype"], T=T
-            )
-            mf_acc_neg, mf_macro_neg, mf_micro_neg = (None, None, None)
-            if config["data_type"] == "all":
-                mf_acc_neg, mf_macro_neg, mf_micro_neg = compute_most_frequent_baseline(
-                    tst_y_neg, train_labels_full_pool, config["n_info"], config["rtype"], T=T
-                )
-
-            # --- Random Baseline ---
-            rand_acc_pos, rand_macro_pos, rand_micro_pos = compute_random_baseline(
-                tst_y_pos, config["n_classes"], T=T, random_seed=config.get("random_seed", None)
-            )
-            baseline_results_rows.append({'T': T, 'baseline': 'random', 'split': 'pos', 'accuracy': rand_acc_pos, 'macro_recall': rand_macro_pos, 'micro_recall': rand_micro_pos})
-            if config["data_type"] == "all":
-                rand_acc_neg, rand_macro_neg, rand_micro_neg = compute_random_baseline(
-                    tst_y_neg, config["n_classes"], T=T, random_seed=config.get("random_seed", None)
-                )
-                baseline_results_rows.append({'T': T, 'baseline': 'random', 'split': 'neg', 'accuracy': rand_acc_neg, 'macro_recall': rand_macro_neg, 'micro_recall': rand_micro_neg})
-            
-            # --- Structured Random Baseline ---
-            s_rand_acc_pos, s_rand_macro_pos, s_rand_micro_pos = compute_structured_random_baseline(
-                tst_y_pos, config["n_classes"], T=T, random_seed=config.get("random_seed", None), rtype=config["rtype"], n_info=config["n_info"]
-            )
-            baseline_results_rows.append({'T': T, 'baseline': 'structured_random', 'split': 'pos', 'accuracy': s_rand_acc_pos, 'macro_recall': s_rand_macro_pos, 'micro_recall': s_rand_micro_pos})
-            if config["data_type"] == "all":
-                s_rand_acc_neg, s_rand_macro_neg, s_rand_micro_neg = compute_structured_random_baseline(
-                    tst_y_neg, config["n_classes"], T=T, random_seed=config.get("random_seed", None), rtype=config["rtype"], n_info=config["n_info"]
-                )
-                baseline_results_rows.append({'T': T, 'baseline': 'structured_random', 'split': 'neg', 'accuracy': s_rand_acc_neg, 'macro_recall': s_rand_macro_neg, 'micro_recall': s_rand_micro_neg})
-            
-            # --- Most Frequent Baseline (append results) ---
-            baseline_results_rows.append({'T': T, 'baseline': 'most_frequent', 'split': 'pos', 'accuracy': mf_acc_pos, 'macro_recall': mf_macro_pos, 'micro_recall': mf_micro_pos})
-            if config["data_type"] == "all":
-                baseline_results_rows.append({'T': T, 'baseline': 'most_frequent', 'split': 'neg', 'accuracy': mf_acc_neg, 'macro_recall': mf_macro_neg, 'micro_recall': mf_micro_neg})
-
-            # --- Frequency Chain Baseline ---
-            fc_acc_pos, fc_macro_pos, fc_micro_pos = compute_frequency_chain_baseline(
-                tst_y_pos, train_labels_full_pool, T=T, random_seed=config.get("random_seed", None), rtype=config["rtype"], n_info=config["n_info"]
-            )
-            baseline_results_rows.append({'T': T, 'baseline': 'freq_chain', 'split': 'pos', 'accuracy': fc_acc_pos, 'macro_recall': fc_macro_pos, 'micro_recall': fc_micro_pos})
-            if config["data_type"] == "all":
-                fc_acc_neg, fc_macro_neg, fc_micro_neg = compute_frequency_chain_baseline(
-                    tst_y_neg, train_labels_full_pool, T=T, random_seed=config.get("random_seed", None), rtype=config["rtype"], n_info=config["n_info"], sample_neg=True
-                )
-                baseline_results_rows.append({'T': T, 'baseline': 'freq_chain', 'split': 'neg', 'accuracy': fc_acc_neg, 'macro_recall': fc_macro_neg, 'micro_recall': fc_micro_neg})
-
-        # Save baseline results to CSV
-        baseline_df = pd.DataFrame(baseline_results_rows)
-        baseline_results_path = os.path.join(os.path.dirname(results_path), f'baselines_{config["model_type"]}_{config["rtype"]}_{config["data_type"]}_{timestamp}.csv')
-        baseline_df.to_csv(baseline_results_path, index=False)
-        logger.info(f"Saved baseline results to {baseline_results_path}")
 
     # --- Save the best model and clean up other models ---
-    if best_run_idx != -1:
+    if not config.get('load_model_path') and best_run_idx != -1:
+        os.makedirs('experiment_2_results', exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        injection_percentage = config['test_injection_percentage']
+        save_path = f'experiment_2_results/model_{config["model_type"]}_{config["rtype"]}_{config["data_type"]}_{injection_percentage}_{timestamp}.pt'
+        
         best_model_run_path = f'./trained_models/retrain_run_{config["model_type"]}_{config["rtype"]}_{config["data_type"]}_{config["run_identifier"]}_run_{best_run_idx}.pt'
         if os.path.exists(best_model_run_path):
-            shutil.copyfile(best_model_run_path, best_model_path)
-            logger.info(f"Copied best model (from run {best_run_idx + 1}) to {best_model_path}")
+            shutil.copyfile(best_model_run_path, save_path)
+            logger.info(f"Copied best model to {save_path}")
         else:
             logger.warning(f"Best model file not found at {best_model_run_path}, could not copy.")
 
@@ -671,9 +579,111 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
         try:
             if os.path.exists(model_path_to_delete):
                 os.remove(model_path_to_delete)
-                # logger.info(f"Cleaned up model from run {run_idx + 1}: {model_path_to_delete}")
+                logger.info(f"Cleaned up model from run {run_idx + 1}: {model_path_to_delete}")
         except OSError as e:
             logger.warning(f"Error deleting model {model_path_to_delete}: {e}")
+
+    reagent_df = pd.read_csv(f"reagents_dfs/bh_treshold_all_all_reagent_df.csv") if config["rtype"] == "bh" else pd.read_csv(f"reagents_dfs/sm_treshold_all_all_reagent_df.csv")
+    
+    if config["rtype"] == "bh":
+        # --- Catalyst Analysis ---
+        logger.info("\n--- Catalyst Analysis ---")
+        
+        catalyst_df = reagent_df[reagent_df['reagent_type'] == 'C']
+        catalyst_indices = catalyst_df.index.tolist()
+        
+        # Get ground truth catalyst distribution
+        true_catalyst_indices = []
+        for labels in tst_y_pos:
+            for condition_set in labels:
+                # Find the index in the condition set that is in the catalyst_indices list
+                index = next((i for i, x in enumerate(condition_set) if x in catalyst_indices), None)
+                if index is not None:
+                    true_catalyst_indices.append(condition_set[index])
+                else:
+                    logger.warning(f"Condition set {condition_set} does not contain any catalyst indices.")
+
+        true_catalyst_counts = pd.Series(true_catalyst_indices).value_counts().nlargest(12)
+        true_catalyst_names = catalyst_df.loc[true_catalyst_counts.index]['reagent']
+        logger.info("Top 12 Ground Truth Catalysts:")
+        for name, count in zip(true_catalyst_names, true_catalyst_counts):
+            logger.info(f"{name}: {count}")
+
+        # Get predicted catalyst distribution
+        predicted_catalyst_indices = []
+        for preds in evaluation_results['positive_predictions']:
+            for pred_set in preds:
+                index = next((i for i, x in enumerate(pred_set) if x in catalyst_indices), None)
+                if index is not None:
+                    predicted_catalyst_indices.append(pred_set[index])
+                else:
+                    logger.warning(f"Condition set {pred_set} does not contain any catalyst indices.")
+
+        predicted_catalyst_counts = pd.Series(predicted_catalyst_indices).value_counts().nlargest(12)
+        predicted_catalyst_names = catalyst_df.loc[predicted_catalyst_counts.index]['reagent']
+        logger.info("\nTop 12 Predicted Catalysts:")
+        for name, count in zip(predicted_catalyst_names, predicted_catalyst_counts):
+            logger.info(f"{name}: {count}")
+
+        #Count how many times top-12 predicted catalysts are in the top-12 ground truth catalysts
+        top_12_predicted_catalysts = predicted_catalyst_names.tolist()
+        top_12_true_catalysts = true_catalyst_names.tolist()
+        top_12_predicted_catalysts_in_top_12_true_catalysts = [x for x in top_12_predicted_catalysts if x in top_12_true_catalysts]
+        logger.info(f"Number of Top-12 predicted catalysts in top-12 ground truth catalysts: {len(top_12_predicted_catalysts_in_top_12_true_catalysts) / 12:.2f}")
+        logger.info(f"Names of Top-12 predicted catalysts in top-12 ground truth catalysts: {top_12_predicted_catalysts_in_top_12_true_catalysts}")
+
+    if config["rtype"] == "sm":
+        # --- Solvent and Base Analysis ---
+        logger.info("\n--- Solvent and Base Analysis ---")
+
+        # Fixed reference set for the Suzuki-Miyaura target transformation of the paper's case
+        # study: the twelve solvent/base pairs used as ground truth in Fig. 6 and Table 2. Unlike
+        # the Buchwald-Hartwig branch above, which derives its top 12 from the held-out positives at
+        # run time, this list is hard-coded, so it is only meaningful for that one transformation.
+        # For any other target, derive the reference set the same way the bh branch does.
+        ground_truth_base_solvent_tuples = [("K3PO4", "Dioxane"), ("Cs2CO3", "THF"), ("K2CO3", "Dioxane"), ("K3PO4", "THF"), ("Na2CO3", "EtOH"), ("Cs2CO3", "tAmOH"), ("K3PO4", "PhMe"), ("Na2CO3", "tAmOH"), ("K3PO4", "tAmOH"), ("K3PO4", "MeCN"), ("K3PO4", "DMF"), ("K3PO4", "iPrOH") ]
+        
+        solvent_df = reagent_df[reagent_df['reagent_type'] == 'S']
+        solvent_indices = solvent_df.index.tolist()
+
+        base_df = reagent_df[reagent_df['reagent_type'] == 'B']
+        base_indices = base_df.index.tolist()
+
+        # Log ground truth from the provided list
+        logger.info("Top 12 Ground Truth Solvent-Base Tuples:")
+        for base, solvent in ground_truth_base_solvent_tuples:
+            logger.info(f"({base}, {solvent})")
+
+        # Get predicted solvent-base pairs
+        predicted_base_solvent_pairs = []
+        if 'positive_predictions' in evaluation_results and evaluation_results['positive_predictions'] is not None:
+            for preds in evaluation_results['positive_predictions']:
+                for pred_set in preds:
+                    base_idx = next((x for x in pred_set if x in base_indices), None)
+                    solvent_idx = next((x for x in pred_set if x in solvent_indices), None)
+                    
+                    if base_idx is not None and solvent_idx is not None:
+                        base_name = base_df.loc[base_idx]['reagent']
+                        solvent_name = solvent_df.loc[solvent_idx]['reagent']
+                        predicted_base_solvent_pairs.append((base_name, solvent_name))
+        
+        if predicted_base_solvent_pairs:
+            predicted_base_solvent_counts = pd.Series(predicted_base_solvent_pairs).value_counts().nlargest(12)
+            
+            logger.info("\nTop 12 Predicted Solvent-Base Tuples:")
+            for (base, solvent), count in predicted_base_solvent_counts.items():
+                logger.info(f"({base}, {solvent}): {count}")
+
+            top_12_predicted_pairs = predicted_base_solvent_counts.index.tolist()
+            
+            # Compare with ground truth
+            common_pairs = [pair for pair in top_12_predicted_pairs if pair in ground_truth_base_solvent_tuples]
+            
+            logger.info(f"\nNumber of Top-12 predicted solvent-base pairs in top-12 ground truth pairs: {len(common_pairs)} / 12")
+            logger.info(f"Names of common pairs: {common_pairs}")
+        else:
+            logger.info("\nNo solvent-base pair predictions were made.") 
+
 
     # --- Generate Summary Report ---
     summary_report = {}
@@ -683,7 +693,7 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
         best_run_index = all_performances.index(best_overall_performance) if all_performances else -1
 
         metric_values_by_name = defaultdict(list)
-        is_simple_model = config["model_type"] == 'rxnfp'
+        is_simple_model = config["model_type"] in ['rxnfp', 'baselineofbaseline']
         
         for run_metrics in all_run_metrics:
             if 'overall_performance' in run_metrics:
@@ -720,33 +730,6 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
             'metric_summaries': metric_summaries
         }
     
-    # --- Generate detailed CSV report for all N runs ---
-    if all_run_metrics:
-        detailed_rows = []
-        is_simple_model = config["model_type"] == 'rxnfp'
-        for i, run_metrics in enumerate(all_run_metrics):
-            row = {'run_index': i}
-            if 'overall_performance' in run_metrics:
-                row['overall_performance'] = run_metrics['overall_performance']
-            
-            if is_simple_model:
-                for split in ['positive', 'negative']:
-                    if split in run_metrics and run_metrics[split] is not None:
-                        for metric, value in run_metrics[split].items():
-                            row[f"{metric}_{split}_T1"] = value
-            else: # VAE-like models
-                T_values = run_metrics.get('T_values', [])
-                for T in T_values:
-                    for split in ['positive', 'negative']:
-                        if split in run_metrics and T in run_metrics[split]:
-                            for metric, value in run_metrics[split][T].items():
-                                row[f"{metric}_{split}_T{T}"] = value
-            detailed_rows.append(row)
-            
-        detailed_df = pd.DataFrame(detailed_rows)
-        detailed_csv_path = results_path.replace('.json', '_detailed.csv')
-        detailed_df.to_csv(detailed_csv_path, index=False)
-        logger.info(f"Saved detailed metrics for all runs to {detailed_csv_path}")
 
     # Structure the final report
     final_report = {
@@ -763,52 +746,26 @@ def retrain_algorithm(config, n_trainings, wandb_is_active):
             return obj.tolist()
         raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
-    with open(results_path, 'w') as f:
-        json.dump(final_report, f, indent=4, default=numpy_serializer)
-    logger.info(f"Saved all run metrics and summary to {results_path}")
+
 
     if wandb_is_active and wandb.run and os.path.exists(best_model_path):
         artifact = wandb.Artifact(f'best_model_{config["model_type"]}', type='model')
         artifact.add_file(best_model_path)
         wandb.log_artifact(artifact)
-        logger.info(f"Uploaded best model to W&B: {best_model_path}")
-
-    # Add model comparison guidance
-    logger.info(f"\n--- MODEL COMPARISON GUIDANCE ---")
-    if all_run_metrics:
-        overall_performances = [run_metrics['overall_performance'] for run_metrics in all_run_metrics]
-        mean_perf = np.mean(overall_performances)
-        std_perf = np.std(overall_performances, ddof=1) if len(overall_performances) > 1 else 0.0
-        
-        logger.info(f"Overall Performance: {mean_perf:.4f} ± {std_perf:.4f}")
-        logger.info(f"Coefficient of Variation: {std_perf/mean_perf:.3f}" if mean_perf != 0 else "Coefficient of Variation: inf")
-        logger.info(f"Performance Range: [{min(overall_performances):.4f}, {max(overall_performances):.4f}]")
-        
-        if std_perf / mean_perf < 0.05:
-            logger.info("✓ Model performance is highly stable across runs")
-        elif std_perf / mean_perf < 0.10:
-            logger.info("⚠ Model performance shows moderate variability")
-        else:
-            logger.info("⚠ Model performance shows high variability - consider more runs or better regularization")
-
-    logger.info(f"\n--- Retrain Best Models Script Completed ---")
-    logger.info(f"Best model from run {best_run_idx + 1} with performance {best_performance:.4f}")
-    logger.info(f"Results saved to: {results_path}")
-    logger.info(f"For model comparison, use the detailed CSV: {results_path.replace('.json', '_detailed.csv')}")
 
     return True
 
 if __name__ == "__main__":
-    # Setup logging first, before any other operations
-    logger = setup_logging(verbose=True)
-
-    parser = argparse.ArgumentParser(description="Retrain and evaluate the best model.")
+    parser = argparse.ArgumentParser(description="Retrain a model on a specific data split and evaluate catalyst prediction.")
     parser.add_argument("--config_file", type=str, required=True, help="Path to base config YAML file.")
-    parser.add_argument("--n_trainings", type=int, default=10, help="Number of times to train the model.")
+    parser.add_argument("--test_smiles_list", type=str, nargs='+', required=True, help="List of reaction SMILES to use as the test set.")
+    parser.add_argument("--load_model_path", type=str, default=None, help="Path to load a pre-trained model.")
+    parser.add_argument("--test_injection_percentage", type=float, default=0.0, help="Percentage of test set to inject into training set.")
     
     args, unknown = parser.parse_known_args()
+    
+    logger = setup_logging(verbose=True)
 
-    # Load the base config from the YAML file
     try:
         with open(args.config_file, 'r') as f:
             config = yaml.safe_load(f) or {}
@@ -819,18 +776,17 @@ if __name__ == "__main__":
         logger.error(f"FATAL: Error parsing YAML file {args.config_file}: {exc}")
         exit(1)
 
-    # Flatten the config to handle wandb-style {value: ...} entries
     config = flatten_wandb_config(config)
 
-    # This allows overriding config with CLI arguments, useful for wandb sweeps
     for i in range(0, len(unknown), 2):
         key = unknown[i].replace("--", "")
         val = unknown[i+1]
         if key in config:
             config[key] = type(config[key])(val) if config[key] is not None else val
 
-    # 'config' is now the authoritative configuration for this specific run.
-    logger = setup_logging(config.get('verbose', False))
+    config['test_smiles_list'] = args.test_smiles_list
+    config['load_model_path'] = args.load_model_path
+    config['test_injection_percentage'] = args.test_injection_percentage
 
     WANDB_ACTIVE = config.get("wandb", False) and wandb is not None
 
@@ -838,21 +794,19 @@ if __name__ == "__main__":
     if WANDB_ACTIVE:
         logger.info("INFO: Weights & Biases is ACTIVE. Attempting to initialize...")
         try:
-            wandb_project = config.get("wandb_project", "retrain_best_model")
+            wandb_project = config.get("wandb_project", "experiment_2")
             current_wandb_run_object = wandb.init(project=wandb_project, config=config)
-            config = dict(wandb.config) # W&B provides the authoritative config
+            config = dict(wandb.config)
             logger.info(f"INFO: Weights & Biases INITIALIZED. Run: {current_wandb_run_object.name}")
         except Exception as e:
             logger.error(f"ERROR: Failed to initialize Weights & Biases: {e}")
-            logger.info("INFO: Proceeding with W&B effectively disabled for this run.")
             WANDB_ACTIVE = False
     else:
         logger.info("INFO: Weights & Biases is DISABLED.")
 
-    # Execute the main processing logic
-    success = retrain_algorithm(config=config, n_trainings=args.n_trainings, wandb_is_active=WANDB_ACTIVE)
+    # Always run for one training/evaluation cycle
+    success = retrain_algorithm(config=config, n_trainings=1, wandb_is_active=WANDB_ACTIVE)
 
-    # Cleanly finish the W&B run
     if WANDB_ACTIVE and current_wandb_run_object:
         if success:
             logger.info(f"INFO: W&B run {current_wandb_run_object.name} finishing.")

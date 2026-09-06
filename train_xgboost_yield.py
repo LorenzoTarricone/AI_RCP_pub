@@ -848,7 +848,7 @@ def main():
         has_embeddings = False
         for filename in os.listdir(reagents_dir):
             #take the file for the reaction and data type
-            if filename == f'{config['rxn_type']}_treshold_all_{config['data_type']}_reagent_df.csv':
+            if filename == f"{config['rxn_type']}_treshold_all_{config['data_type']}_reagent_df.csv":
                 reagent_df = pd.read_csv(os.path.join(reagents_dir, filename))
                 if 'embedding' in reagent_df.columns:
                     has_embeddings = True

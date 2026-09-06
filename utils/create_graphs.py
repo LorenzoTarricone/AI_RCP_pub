@@ -121,7 +121,7 @@ def get_graph_data(data, keys, config):
 
     #Initialize the dictionary to store the embeddings for each reaction
 
-    print(f"INFO: Using the following atom embeddings - {config["atom_emb_list"]} ")
+    print(f"INFO: Using the following atom embeddings - {config['atom_emb_list']} ")
     embeddings_dict = {i: [] for i in range(len(keys))}
 
     for i, rsmi in enumerate(tqdm(keys)):

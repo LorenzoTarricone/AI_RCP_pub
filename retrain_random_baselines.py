@@ -101,6 +101,7 @@ def compute_baselines(config, n_runs):
         except Exception as e:
             err_msg = f"ERROR: During loading of graph data: {e}"
             logger.error(err_msg)
+            return
 
 
     num_reactions = len(all_reaction_labels)

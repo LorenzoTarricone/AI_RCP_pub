@@ -95,6 +95,15 @@ The following directories are not raw inputs — they are caches produced by the
 
 `trained_models/` ships with several pre-trained `.pt` checkpoints (the largest are ~80 MB each, totalling several hundred MB). These are tracked directly in the repository for now so that `inference.py` works out of the box; a future revision may move them to the Zenodo archive (see [Citation](#citation)) or to Git LFS. If you only intend to retrain from scratch, you can safely ignore or delete this directory.
 
+> **These checkpoints were trained on the full internal datasets, not on the public subset in
+> `data/`.** They therefore carry the internal component vocabulary (92 components for `bh_all`,
+> against 57 for the public subset), which has two consequences. They are the models behind the
+> numbers in the paper, so they are the right ones to use for `inference.py` if you want to
+> reproduce published predictions; but they are **not** interchangeable with models you train here
+> from the public data, and loading one against a public-data configuration will fail on a
+> dimension mismatch rather than silently produce wrong answers. Anything you train from this
+> repository uses the public vocabulary throughout and is self-consistent.
+
 ## Installation
 
 The repository ships with two Conda environment files:
@@ -259,6 +268,83 @@ python retrain_best_models.py --config_file configs/gen_config.yaml --n_training
 python retrain_random_baselines.py --config_file configs/gen_config.yaml --n_runs 10
 ```
 
+### Single-transformation case study (zero-shot vs. few-shot)
+
+`experiment_2.py` runs the single-target case study of the paper: one model is trained on all
+transformations of a reaction class and evaluated on a single held-out target, either with none of
+that target's condition instances in training (*zero-shot*) or with a random fraction of them
+injected (*few-shot*). It trains from scratch and takes no pre-trained weights.
+
+The test set is selected by SMILES rather than by a split file, so the target transformation is
+given on the command line:
+
+```bash
+# zero-shot: the target is excluded from training entirely
+python experiment_2.py \
+    --config_file configs/case_study/sm_all_seq_emb.yaml \
+    --test_smiles_list "<reaction SMILES>" \
+    --test_injection_percentage 0.0
+
+# few-shot: 20% of the target's condition instances are injected into the training set
+python experiment_2.py \
+    --config_file configs/case_study/sm_all_seq_emb.yaml \
+    --test_smiles_list "<reaction SMILES>" \
+    --test_injection_percentage 0.2
+```
+
+`scripts/single_job.sh` contains a complete invocation for the Suzuki–Miyaura target used in the
+paper. The injected subset is drawn with a single uniform sample without replacement over the
+target's condition instances, using the `random_seed` in the config (42 in the shipped files). It is
+**not** stratified by outcome, by condition class or by measured area%, so its positive/negative
+balance simply follows that of the target transformation.
+
+`data_graphs/` ships only the Buchwald–Hartwig cache, so the first Suzuki–Miyaura run needs its
+graphs built: set `load_graphs: false` (and `save_graphs: true` to keep them) in the config, as for
+any other script in this repository.
+
+Two things to be aware of when comparing against the paper:
+
+*   The published case-study numbers were produced on the full internal datasets. Both target
+    transformations are present in the public subset, but with fewer condition instances (1,700 of
+    1,847 for the Buchwald–Hartwig target, 358 of 480 for the Suzuki–Miyaura one) and a different
+    rare-component vocabulary, so a public re-run reproduces the protocol and the qualitative
+    zero-shot/few-shot contrast, not the exact figures.
+*   For the Suzuki–Miyaura branch the twelve ground-truth solvent/base pairs are hard-coded (see the
+    comment at that point in the script) and are specific to the paper's target. The
+    Buchwald–Hartwig branch derives its top-12 from the held-out positives at run time; use that
+    approach for any other target.
+
+### Constraint-aware plate design (ILP vs. naive)
+
+`experiment_3.py` is the plate-design comparison behind Table 3: for each target transformation it
+samples positive and negative conditions from a generative model, projects them to the
+(ligand, solvent/base) plate-well level, and then builds a 96-well plate twice — once with the naive
+frequency-ranking heuristic used in prior work, and once with the ILP constrained to match the
+naive positive coverage, so that any gain must come from avoiding predicted-negative wells. Each
+plate is reported as four disjoint categories (positive / negative / uncertain / unknown) summing
+to 96.
+
+Unlike `experiment_2.py`, this script trains nothing — it consumes an already-trained generative
+model, so you supply one you have trained here:
+
+```bash
+python experiment_3.py \
+    --gen_model_path trained_models/<your_model>.pt \
+    --gen_config_path configs/case_study/bh_all_seq_emb.yaml \
+    --reaction_smiles_list "<reaction SMILES>" ... \
+    --n_conditions 500
+```
+
+Targets are given on the command line; with none supplied the script samples ten at random from the
+dataset. The paper's ten Buchwald–Hartwig targets are not reproduced here, because four of them
+involve products that cannot be shared outside Roche (six are drawn in the SI). Running the script
+on public transformations reproduces the method and the four-category accounting, not the specific
+numbers in Table 3.
+
+The ILP itself — objective, coverage constraints, and the chemical-incompatibility constraints — is
+also used by `inference.py`, which designs a plate for a single transformation at the end of an
+inference run.
+
 ### Inference
 
 To run inference, you need a trained generative model to sample reaction conditions. Optionally, you can also use a trained XGBoost model to score these conditions and predict their yield, which helps in pruning low-quality suggestions.
@@ -284,6 +370,9 @@ The behavior of the scripts is controlled by YAML configuration files in the `co
 *   `xgboost_config.yaml`: Configuration for the XGBoost model training.
 *   `inference_config.yaml`: Configuration for the inference script.
 *   `sweep_config.yaml`: Configuration for hyperparameter sweeps with Weights & Biases.
+*   `case_study/{bh,sm}_all_seq_emb.yaml`: The per-model hyperparameters selected for `CondVAE` on
+    the two `all` datasets, used by `experiment_2.py`. `rtype` and `data_type` are derived from
+    `filepath`, so pointing `filepath` at a different processed dataset is enough to switch target.
 
 Please refer to the configuration files for detailed explanations of each parameter.
 

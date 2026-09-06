@@ -6,7 +6,7 @@
 # ./scripts/retrain.sh <config_folder>
 #
 # Example:
-# ./scripts/retrain.sh best_configs
+# ./scripts/retrain.sh configs/case_study
 #
 # The script iterates through all .yaml files in the provided folder,
 # and for each config, it generates and submits a Slurm job.

@@ -175,10 +175,11 @@ def algorithm(config, wandb_is_active):
     device = torch.device("cuda" if (torch.cuda.is_available() and config["device"] == "cuda") else "cpu")
     logger.info(f"INFO: Using device: {device}")
 
+    cuda = device  # used unconditionally below; must be set for CPU runs too
+
     if device.type == "cuda":
         logger.info(f"GPU name: {torch.cuda.get_device_name(0)}") #prints the GPU name
         logger.info(f"GPU memory allocated: {torch.cuda.memory_allocated(0) / 1024**3:.2f} GB") #prints the amount of GPU memory allocated.
-        cuda = device
 
     if not os.path.exists('./trained_models/'): 
         os.makedirs('./trained_models/')

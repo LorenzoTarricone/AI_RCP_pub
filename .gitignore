@@ -54,3 +54,10 @@ htmlcov/
 
 #Other
 HPC_scripts/*
+
+# Run outputs (checkpoints and results written by the training / experiment scripts)
+best_models/
+best_results/
+experiment_2_results/
+experiment_3_results/
+outputs_retrain/
